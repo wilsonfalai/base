@@ -1,4 +1,14 @@
 packages:
   - apps/*
+  - packages/*
+
+catalogs:
+  prisma:
+    prisma: 7.10.0
+    '@prisma/client': 7.10.0
+    '@prisma/adapter-pg': 7.10.0
+
 allowBuilds:
+  '@prisma/engines': true
+  prisma: true
   unrs-resolver: true
