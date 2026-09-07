@@ -73,10 +73,24 @@ pnpm start       # Inicia ambos em produção após o build
 pnpm lint        # Verifica os dois aplicativos
 pnpm test        # Teste unitário oficial do NestJS
 pnpm test:integration # Teste real do PostgreSQL
-pnpm test:e2e    # Teste HTTP oficial do NestJS
+pnpm test:e2e    # Testes HTTP da API e testes de navegador
+pnpm test:e2e:web # Apenas os testes Playwright
 ```
 
 Para executar apenas um aplicativo: `pnpm --filter web dev` ou `pnpm --filter api dev`.
+
+## Testes E2E no navegador
+
+O Playwright fica isolado em `apps/e2e` e usa Chromium. Na primeira execução local, instale o navegador e depois rode os testes:
+
+```bash
+pnpm test:e2e:install
+pnpm test:e2e:web
+```
+
+O runner inicia e encerra o Next.js automaticamente. Se já houver um frontend na porta 3000, ele será reutilizado fora da CI. Em distribuições Linux novas, o Playwright pode solicitar a instalação adicional das dependências do sistema com `playwright install --with-deps chromium` e pedir a senha do `sudo`.
+
+Use `E2E_BASE_URL` para apontar o navegador para outro frontend, `E2E_API_BASE_URL` para a API e, quando a autenticação estiver implementada, `E2E_AUTH_STATE_PATH` para informar uma sessão real. Os critérios para escrever e manter novos testes estão em `apps/e2e/README.md`.
 
 ## Dependências
 

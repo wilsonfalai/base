@@ -3,6 +3,10 @@ node_modules/
 dist/
 .turbo/
 coverage/
+playwright-report/
+test-results/
+blob-report/
+.auth/
 *.tsbuildinfo
 .env
 .env.*
