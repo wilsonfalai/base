@@ -18,11 +18,14 @@
       "outputs": ["src/generated/prisma/**"]
     },
     "lint": {},
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
     "test": {},
     "test:integration": {
       "cache": false,
       "dependsOn": ["^build"]
     },
-    "test:e2e": {}
+    "test:e2e": { "cache": false }
   }
 }
