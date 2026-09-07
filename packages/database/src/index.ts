@@ -1,2 +1,3 @@
-// Public exports are added with the Prisma schema and generated client.
-export {};
+export { createPrismaClient } from './client.js';
+export type { DatabaseClient } from './client.js';
+export * from './generated/prisma/client.js';

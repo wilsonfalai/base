@@ -3,12 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio"
+  },
   "exports": {
     ".": "./src/index.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "catalog:prisma",
     "@prisma/client": "catalog:prisma",
+    "dotenv": "17.4.2",
     "pg": "8.23.0"
   },
   "devDependencies": {
