@@ -69,19 +69,20 @@ pnpm db:deploy
 pnpm dev
 ```
 
-O `pnpm dev` inicia o frontend e a API, mas não inicia o PostgreSQL. O banco deve estar disponível com `pnpm db:up`.
+O `pnpm dev` inicia o frontend, a API e o Prisma Studio, mas não inicia o PostgreSQL. O banco deve estar disponível com `pnpm db:up`.
 
-| Serviço    | Endereço                           |
-| ---------- | ---------------------------------- |
-| Frontend   | http://localhost:3000              |
-| Login      | http://localhost:3000/login        |
-| Dashboard  | http://localhost:3000/dashboard    |
-| API        | http://localhost:3001              |
-| Liveness   | http://localhost:3001/health       |
-| Readiness  | http://localhost:3001/health/ready |
-| PostgreSQL | `localhost:5432`                   |
+| Serviço       | Endereço                           |
+| ------------- | ---------------------------------- |
+| Frontend      | http://localhost:3000              |
+| Login         | http://localhost:3000/login        |
+| Dashboard     | http://localhost:3000/dashboard    |
+| API           | http://localhost:3001              |
+| Liveness      | http://localhost:3001/health       |
+| Readiness     | http://localhost:3001/health/ready |
+| Prisma Studio | http://localhost:5555              |
+| PostgreSQL    | `localhost:5432`                   |
 
-Encerre Next.js e NestJS com `Ctrl+C`. O PostgreSQL permanece em segundo plano até `pnpm db:down`.
+Encerre Next.js, NestJS e Prisma Studio com `Ctrl+C`. O PostgreSQL permanece em segundo plano até `pnpm db:down`.
 
 ## Variáveis de ambiente
 
@@ -106,7 +107,7 @@ As credenciais fornecidas em `.env.example` são apenas para desenvolvimento loc
 
 | Comando                 | Finalidade                              |
 | ----------------------- | --------------------------------------- |
-| `pnpm dev`              | inicia web e API com recarga automática |
+| `pnpm dev`              | inicia web, API e Prisma Studio          |
 | `pnpm build`            | compila todos os workspaces aplicáveis  |
 | `pnpm start`            | inicia os aplicativos compilados        |
 | `pnpm lint`             | executa as análises estáticas           |
@@ -130,6 +131,8 @@ pnpm --filter api dev
 ## Banco de dados e Prisma
 
 O PostgreSQL local roda em Docker, escuta apenas em `localhost` e persiste no volume nomeado `mosaicgestao_postgres_data`.
+
+O Prisma Studio é iniciado automaticamente por `pnpm dev` em http://localhost:5555. Para executá-lo isoladamente, use `pnpm db:studio`.
 
 ```bash
 pnpm db:up
@@ -274,7 +277,7 @@ Exceções atuais: TypeScript 6 é mantido enquanto a API de compilação exigid
 - **Banco ainda iniciando:** aguarde `pnpm db:up`, que termina após o healthcheck.
 - **Migration inconsistente:** execute `pnpm --filter @mosaicgestao/database exec prisma migrate status` antes de qualquer ação destrutiva.
 - **Chromium sem bibliotecas Linux:** execute a instalação do Playwright com `--with-deps`.
-- **Porta 3000 ou 3001 ocupada:** encerre a instância anterior antes de executar `pnpm dev`.
+- **Porta 3000, 3001 ou 5555 ocupada:** encerre a instância anterior antes de executar `pnpm dev`.
 
 ## Documentos relacionados
 

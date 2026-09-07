@@ -10,6 +10,7 @@
   "scripts": {
     "prebuild": "pnpm db:generate",
     "build": "tsc --project tsconfig.json",
+    "dev": "prisma studio --port 5555 --browser none",
     "typecheck": "pnpm db:generate && tsc --project tsconfig.json --noEmit",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
