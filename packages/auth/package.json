@@ -1,0 +1,32 @@
+{
+  "name": "@mosaicgestao/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "auth:create-admin": "pnpm --filter @mosaicgestao/database build && pnpm dlx auth@1.7.3 create-admin --config src/cli.ts --role admin",
+    "auth:schema": "pnpm --filter @mosaicgestao/database build && pnpm dlx auth@1.7.3 generate --config src/cli.ts --output ../database/prisma/schema.prisma --yes",
+    "build": "tsc --project tsconfig.json",
+    "typecheck": "tsc --project tsconfig.json --noEmit"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@better-auth/prisma-adapter": "catalog:auth",
+    "@mosaicgestao/database": "workspace:*",
+    "better-auth": "catalog:auth",
+    "dotenv": "17.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "26.4.1",
+    "typescript": "6.0.3"
+  }
+}

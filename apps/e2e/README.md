@@ -1,12 +1,14 @@
 # Testes E2E
 
-Este workspace contém os testes Playwright das jornadas críticas do sistema. O projeto usa Chromium e inicia o Next.js automaticamente na porta 3000.
+Este workspace contém os testes Playwright das jornadas críticas do sistema. O projeto usa Chromium e inicia automaticamente o Next.js na porta 3000 e a API NestJS na porta 3001. O PostgreSQL precisa estar disponível e com as migrations aplicadas.
 
 ## Comandos
 
 Execute a partir da raiz do monorepo:
 
 ```bash
+pnpm db:up
+pnpm db:deploy
 pnpm test:e2e:install
 pnpm test:e2e:web
 pnpm --filter @mosaicgestao/e2e test:e2e:ui
@@ -17,7 +19,7 @@ Variáveis suportadas:
 
 - `E2E_BASE_URL`: frontend testado; padrão `http://localhost:3000`.
 - `E2E_API_BASE_URL`: API usada pelas fixtures; padrão `http://localhost:3001`.
-- `E2E_AUTH_STATE_PATH`: arquivo `storageState` produzido por uma autenticação real.
+- `E2E_USER_EMAIL`, `E2E_USER_NAME` e `E2E_USER_PASSWORD`: permitem substituir as credenciais descartáveis da fixture.
 
 ## Quando criar um teste E2E
 
@@ -45,7 +47,9 @@ Um teste não deve depender dos dados ou da ordem de outro teste. Cadastre apena
 
 ## Autenticação
 
-Testes autenticados devem usar `createAuthenticatedTest` e um arquivo de sessão real indicado por `E2E_AUTH_STATE_PATH`. Não grave cookies, tokens, senhas ou arquivos de sessão no Git. A geração automática desse estado será adicionada junto com o Better Auth.
+O `global-setup.ts` cria um usuário descartável pela API oficial do Better Auth antes da suíte e o remove ao final. O cadastro público continua desabilitado na aplicação; ele só é liberado na instância isolada usada para preparar o teste.
+
+Os testes devem autenticar pela tela como um usuário real. Para validar a mesma sessão na API, use `page.context().request`, que compartilha os cookies do navegador. As credenciais padrão pertencem exclusivamente ao banco local ou efêmero da CI; nunca use uma conta ou senha real.
 
 ## Falhas na CI
 

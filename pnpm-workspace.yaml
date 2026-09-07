@@ -3,6 +3,9 @@ packages:
   - packages/*
 
 catalogs:
+  auth:
+    '@better-auth/prisma-adapter': 1.7.3
+    better-auth: 1.7.3
   prisma:
     prisma: 7.10.0
     '@prisma/client': 7.10.0

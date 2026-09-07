@@ -14,6 +14,7 @@ apps/
 ├── e2e/       testes de navegador com Playwright
 └── web/       aplicação Next.js
 packages/
+├── auth/      configuração compartilhada do Better Auth
 └── database/  schema, migrations e client Prisma
 docs/          referências técnicas e de planejamento
 .github/       CI e automação de dependências
@@ -24,6 +25,7 @@ docs/          referências técnicas e de planejamento
 | `apps/web`          | Interface Next.js com App Router, Tailwind CSS e shadcn/ui |
 | `apps/api`          | API NestJS, configuração de ambiente e regras de aplicação |
 | `apps/e2e`          | Jornadas críticas executadas em Chromium pelo Playwright   |
+| `packages/auth`     | Configuração server-side e tipos compartilhados de sessão  |
 | `packages/database` | Acesso PostgreSQL, schema, migrations e client Prisma      |
 
 ## Stack
@@ -35,11 +37,12 @@ Versões instaladas no momento desta documentação:
 | Monorepo     | pnpm 12.3.4 e Turborepo 2.10.12                                  |
 | Frontend     | Next.js 16.3.4, React 19.2.8, Tailwind CSS 4.3.3 e shadcn 4.21.0 |
 | Backend      | NestJS 12.0.1, Zod 4.5.4 e RxJS 7.8.2                            |
+| Autenticação | Better Auth 1.7.3                                               |
 | Persistência | PostgreSQL 18.6 e Prisma 7.10.0                                  |
 | Testes       | Vitest 5.0.0, Supertest 7.2.2 e Playwright 1.63.0                |
 | Linguagem    | TypeScript 6.0.3 e Node.js 24.14 ou superior                     |
 
-Os manifests e o `pnpm-lock.yaml` são a fonte de verdade das versões. Better Auth será incorporado na história de autenticação e ainda não faz parte da instalação atual.
+Os manifests e o `pnpm-lock.yaml` são a fonte de verdade das versões.
 
 ## Pré-requisitos
 
@@ -89,6 +92,9 @@ Copie `.env.example` para `.env`. O arquivo real é ignorado pelo Git e nunca de
 | `NODE_ENV`          | ambiente da aplicação                           |
 | `PORT`              | porta da API; padrão `3001`                     |
 | `DATABASE_URL`      | conexão PostgreSQL usada pela API e pelo Prisma |
+| `BETTER_AUTH_URL`   | origem canônica do handler de autenticação      |
+| `BETTER_AUTH_SECRET`| segredo compartilhado de sessão, mínimo 32 caracteres |
+| `WEB_ORIGIN`        | origem permitida para chamadas do frontend      |
 | `POSTGRES_DB`       | banco criado pelo Docker Compose                |
 | `POSTGRES_USER`     | usuário local do PostgreSQL                     |
 | `POSTGRES_PASSWORD` | senha exclusivamente local                      |
@@ -111,6 +117,8 @@ As credenciais fornecidas em `.env.example` são apenas para desenvolvimento loc
 | `pnpm test:e2e`         | executa E2E da API e do navegador       |
 | `pnpm test:e2e:web`     | executa apenas Playwright               |
 | `pnpm test:e2e:install` | instala o Chromium do Playwright        |
+| `pnpm auth:schema`      | regenera o schema exigido pelo Better Auth |
+| `pnpm auth:create-admin`| cria um usuário administrador por prompt seguro |
 
 Para executar um aplicativo isoladamente:
 
@@ -133,7 +141,7 @@ O schema e as migrations ficam em `packages/database`. Não altere o banco manua
 
 ```bash
 pnpm db:generate
-pnpm db:migrate -- --name nome_da_mudanca
+pnpm db:migrate --name nome_da_mudanca
 pnpm db:deploy
 pnpm db:studio
 ```
@@ -161,7 +169,15 @@ pnpm db:studio
 | E2E da API       | `apps/api/test/*.e2e-spec.ts`         | aplicação NestJS e endpoints HTTP via Supertest |
 | E2E do navegador | `apps/e2e/tests`                      | jornadas críticas no Chromium                   |
 
-Os testes Playwright iniciam e encerram o Next.js automaticamente. Para assistir à execução:
+Os testes Playwright iniciam e encerram Next.js e NestJS automaticamente. O PostgreSQL deve estar disponível e atualizado. A suíte cria e remove seu próprio usuário descartável pelo Better Auth.
+
+```bash
+pnpm db:up
+pnpm db:deploy
+pnpm test:e2e:web
+```
+
+Para assistir à execução:
 
 ```bash
 pnpm --filter @mosaicgestao/e2e test:e2e:ui
@@ -188,7 +204,7 @@ apps/web/src/app/
     └── dashboard/page.tsx
 ```
 
-O login e o dashboard ainda usam os dados visuais de referência do shadcn/ui. Autenticação, autorização e dados reais serão conectados nas respectivas histórias.
+O login usa e-mail e senha do Better Auth. O cadastro público está desabilitado: usuários internos são criados pelo administrador com `pnpm auth:create-admin`. As rotas do grupo `(system)` exigem sessão, e o mesmo cookie é validado pela API NestJS. O dashboard ainda mantém os dados visuais de referência do shadcn/ui.
 
 Execute comandos do shadcn dentro do frontend para que componentes e dependências permaneçam no workspace correto:
 
@@ -211,7 +227,7 @@ O workflow `.github/workflows/ci.yml` executa em pull requests e pushes para `ma
 
 - `Quality`: geração do Prisma Client, lint, typecheck, cobertura e build.
 - `Database tests`: PostgreSQL isolado, migrations, integração e E2E da API.
-- `Browser tests`: Chromium e smoke tests Playwright.
+- `Browser tests`: PostgreSQL efêmero, Chromium e jornada completa de autenticação no Playwright.
 
 Em falhas do navegador, screenshots, vídeos, traces e relatório HTML são armazenados como artifact por sete dias. O Dependabot verifica semanalmente dependências pnpm e GitHub Actions.
 

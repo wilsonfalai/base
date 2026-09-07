@@ -52,16 +52,4 @@ export const test = base.extend<E2EFixtures>({
   },
 });
 
-export function createAuthenticatedTest(
-  storageStatePath = process.env.E2E_AUTH_STATE_PATH,
-) {
-  if (!storageStatePath) {
-    throw new Error(
-      "E2E_AUTH_STATE_PATH is required for authenticated browser tests",
-    );
-  }
-
-  return test.extend({ storageState: storageStatePath });
-}
-
 export { expect };

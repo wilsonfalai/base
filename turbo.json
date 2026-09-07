@@ -1,6 +1,18 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "globalPassThroughEnv": ["DATABASE_URL", "NODE_ENV", "PORT"],
+  "globalPassThroughEnv": [
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
+    "DATABASE_URL",
+    "E2E_API_BASE_URL",
+    "E2E_BASE_URL",
+    "E2E_USER_EMAIL",
+    "E2E_USER_NAME",
+    "E2E_USER_PASSWORD",
+    "NODE_ENV",
+    "PORT",
+    "WEB_ORIGIN"
+  ],
   "tasks": {
     "dev": {
       "dependsOn": ["^build"],
@@ -20,6 +32,9 @@
     "lint": {},
     "typecheck": {
       "dependsOn": ["^build"]
+    },
+    "@mosaicgestao/database#typecheck": {
+      "dependsOn": ["@mosaicgestao/database#build"]
     },
     "test": {},
     "test:coverage": {

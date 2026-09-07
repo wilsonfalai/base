@@ -14,8 +14,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  BETTER_AUTH_SECRET: ci-only-better-auth-secret-at-least-32-characters
+  BETTER_AUTH_URL: http://localhost:3000
   DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/mosaicgestao
   NODE_ENV: test
+  WEB_ORIGIN: http://localhost:3000
 
 jobs:
   quality:
@@ -100,6 +103,20 @@ jobs:
     name: Browser tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18.6-alpine3.24
+        env:
+          POSTGRES_DB: mosaicgestao
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d mosaicgestao"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -116,10 +133,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Apply migrations
+        run: pnpm db:deploy
+
+      - name: Build shared authentication packages
+        run: pnpm exec turbo run build --filter=@mosaicgestao/auth
+
       - name: Install Chromium
         run: pnpm --filter @mosaicgestao/e2e exec playwright install --with-deps chromium
 
-      - name: Run browser smoke tests
+      - name: Run browser authentication tests
         run: pnpm test:e2e:web
 
       - name: Upload Playwright failure artifacts

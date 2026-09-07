@@ -4,6 +4,8 @@
   "packageManager": "pnpm@12.3.4",
   "engines": { "node": ">=24.14.0" },
   "scripts": {
+    "auth:create-admin": "pnpm --filter @mosaicgestao/auth auth:create-admin",
+    "auth:schema": "pnpm --filter @mosaicgestao/auth auth:schema",
     "db:up": "docker compose up -d postgres --wait",
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f postgres",

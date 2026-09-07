@@ -18,7 +18,7 @@ describe('PostgreSQL integration', () => {
   });
 
   afterAll(async () => {
-    await client.$disconnect();
+    await client?.$disconnect();
   });
 
   it('connects to the expected PostgreSQL database', async () => {
@@ -30,7 +30,7 @@ describe('PostgreSQL integration', () => {
     expect(result.version).toMatch(/^18\./);
   });
 
-  it('has the initial migration applied', async () => {
+  it('has all project migrations applied', async () => {
     const migrations = await client.$queryRaw<Array<{ migration_name: string }>>`
       SELECT migration_name
       FROM "_prisma_migrations"
@@ -38,8 +38,9 @@ describe('PostgreSQL integration', () => {
       ORDER BY finished_at
     `;
 
-    expect(migrations.map(({ migration_name }) => migration_name)).toContain(
+    expect(migrations.map(({ migration_name }) => migration_name)).toEqual([
       '20260907020000_initial_baseline',
-    );
+      '20260907123242_add_better_auth',
+    ]);
   });
 });
