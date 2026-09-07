@@ -1,13 +1,62 @@
 # Mosaic Gestão
 
-Base mínima com pnpm workspaces e Turborepo:
+Sistema de gestão comercial e financeira da Mosaic. O projeto centraliza clientes, catálogo, vendas, contratos, contas a receber e pagar, assinaturas recorrentes e indicadores operacionais.
 
-- `apps/web`: Next.js com App Router, TypeScript e Tailwind CSS; página inicial oficial em http://localhost:3000.
-- `apps/api`: NestJS com TypeScript; `Hello World!` em http://localhost:3001.
+O desenvolvimento é orientado pelo [`projeto.prd`](projeto.prd). O [backlog de referência](docs/jira-backlog-mvp.md) traduz o PRD em épicos, histórias e critérios técnicos; o Jira é a fonte oficial de prioridade, status e execução.
 
-## Executar
+## Arquitetura
 
-Use Node.js 24.14 ou superior e pnpm 12.3.4 (`npm install -g pnpm@12.3.4`).
+O repositório é um monorepo pnpm coordenado pelo Turborepo:
+
+```text
+apps/
+├── api/       API NestJS
+├── e2e/       testes de navegador com Playwright
+└── web/       aplicação Next.js
+packages/
+└── database/  schema, migrations e client Prisma
+docs/          referências técnicas e de planejamento
+.github/       CI e automação de dependências
+```
+
+| Workspace           | Responsabilidade                                           |
+| ------------------- | ---------------------------------------------------------- |
+| `apps/web`          | Interface Next.js com App Router, Tailwind CSS e shadcn/ui |
+| `apps/api`          | API NestJS, configuração de ambiente e regras de aplicação |
+| `apps/e2e`          | Jornadas críticas executadas em Chromium pelo Playwright   |
+| `packages/database` | Acesso PostgreSQL, schema, migrations e client Prisma      |
+
+## Stack
+
+Versões instaladas no momento desta documentação:
+
+| Camada       | Tecnologia                                                       |
+| ------------ | ---------------------------------------------------------------- |
+| Monorepo     | pnpm 12.3.4 e Turborepo 2.10.12                                  |
+| Frontend     | Next.js 16.3.4, React 19.2.8, Tailwind CSS 4.3.3 e shadcn 4.21.0 |
+| Backend      | NestJS 12.0.1, Zod 4.5.4 e RxJS 7.8.2                            |
+| Persistência | PostgreSQL 18.6 e Prisma 7.10.0                                  |
+| Testes       | Vitest 5.0.0, Supertest 7.2.2 e Playwright 1.63.0                |
+| Linguagem    | TypeScript 6.0.3 e Node.js 24.14 ou superior                     |
+
+Os manifests e o `pnpm-lock.yaml` são a fonte de verdade das versões. Better Auth será incorporado na história de autenticação e ainda não faz parte da instalação atual.
+
+## Pré-requisitos
+
+- Node.js 24.14 ou superior.
+- pnpm 12.3.4.
+- Docker com Docker Compose.
+- WSLg ou ambiente gráfico equivalente para visualizar testes Playwright no Linux.
+
+Se necessário, instale a versão esperada do pnpm:
+
+```bash
+npm install --global pnpm@12.3.4
+```
+
+## Início rápido
+
+Na raiz do repositório:
 
 ```bash
 pnpm install --frozen-lockfile
@@ -17,128 +66,202 @@ pnpm db:deploy
 pnpm dev
 ```
 
-O `pnpm dev` prepara o pacote compartilhado e inicia os dois aplicativos com recarga automática. Acesse:
+O `pnpm dev` inicia o frontend e a API, mas não inicia o PostgreSQL. O banco deve estar disponível com `pnpm db:up`.
 
-- Frontend: http://localhost:3000
-- API: http://localhost:3001
-- Liveness: http://localhost:3001/health
-- Readiness com banco: http://localhost:3001/health/ready
+| Serviço    | Endereço                           |
+| ---------- | ---------------------------------- |
+| Frontend   | http://localhost:3000              |
+| Login      | http://localhost:3000/login        |
+| Dashboard  | http://localhost:3000/dashboard    |
+| API        | http://localhost:3001              |
+| Liveness   | http://localhost:3001/health       |
+| Readiness  | http://localhost:3001/health/ready |
+| PostgreSQL | `localhost:5432`                   |
 
-Encerre Next.js e NestJS com Ctrl+C. O PostgreSQL roda em segundo plano até `pnpm db:down`.
+Encerre Next.js e NestJS com `Ctrl+C`. O PostgreSQL permanece em segundo plano até `pnpm db:down`.
 
-## Banco de dados local
+## Variáveis de ambiente
 
-O ambiente local usa PostgreSQL 18.6 em Docker, disponível somente em `localhost:5432`. Para iniciar e aguardar o healthcheck:
+Copie `.env.example` para `.env`. O arquivo real é ignorado pelo Git e nunca deve conter credenciais de produção versionadas.
+
+| Variável            | Finalidade                                      |
+| ------------------- | ----------------------------------------------- |
+| `NODE_ENV`          | ambiente da aplicação                           |
+| `PORT`              | porta da API; padrão `3001`                     |
+| `DATABASE_URL`      | conexão PostgreSQL usada pela API e pelo Prisma |
+| `POSTGRES_DB`       | banco criado pelo Docker Compose                |
+| `POSTGRES_USER`     | usuário local do PostgreSQL                     |
+| `POSTGRES_PASSWORD` | senha exclusivamente local                      |
+| `POSTGRES_PORT`     | porta publicada pelo contêiner                  |
+
+As credenciais fornecidas em `.env.example` são apenas para desenvolvimento local.
+
+## Comandos principais
+
+| Comando                 | Finalidade                              |
+| ----------------------- | --------------------------------------- |
+| `pnpm dev`              | inicia web e API com recarga automática |
+| `pnpm build`            | compila todos os workspaces aplicáveis  |
+| `pnpm start`            | inicia os aplicativos compilados        |
+| `pnpm lint`             | executa as análises estáticas           |
+| `pnpm typecheck`        | valida os tipos TypeScript              |
+| `pnpm test`             | executa testes unitários                |
+| `pnpm test:coverage`    | executa unitários e gera cobertura      |
+| `pnpm test:integration` | testa a integração com PostgreSQL       |
+| `pnpm test:e2e`         | executa E2E da API e do navegador       |
+| `pnpm test:e2e:web`     | executa apenas Playwright               |
+| `pnpm test:e2e:install` | instala o Chromium do Playwright        |
+
+Para executar um aplicativo isoladamente:
+
+```bash
+pnpm --filter web dev
+pnpm --filter api dev
+```
+
+## Banco de dados e Prisma
+
+O PostgreSQL local roda em Docker, escuta apenas em `localhost` e persiste no volume nomeado `mosaicgestao_postgres_data`.
 
 ```bash
 pnpm db:up
+pnpm db:logs
+pnpm db:down
 ```
 
-As credenciais padrão servem apenas para desenvolvimento local:
+O schema e as migrations ficam em `packages/database`. Não altere o banco manualmente e não edite uma migration que já tenha sido aplicada.
+
+```bash
+pnpm db:generate
+pnpm db:migrate -- --name nome_da_mudanca
+pnpm db:deploy
+pnpm db:studio
+```
+
+- Use `db:migrate` para criar uma migration durante o desenvolvimento.
+- Use `db:deploy` em checkout limpo, CI e produção.
+- `db:down` preserva o volume; a remoção de dados deve ser manual e intencional.
+
+### Decisões de persistência
+
+- Entidades de domínio usam UUID v4 e coluna PostgreSQL `uuid`.
+- Identificadores administrados por bibliotecas externas seguem seus contratos.
+- Valores monetários usam `Decimal(19,4)` e moeda ISO 4217, inicialmente `BRL`.
+- Cálculos monetários nunca usam ponto flutuante JavaScript.
+- Instantes usam UTC em `timestamptz(3)` e trafegam em ISO 8601.
+- Datas civis, como vencimentos, usam `date`.
+- Conversões para `America/Sao_Paulo` acontecem na apresentação.
+
+## Estratégia de testes
+
+| Nível            | Localização                           | Cobertura atual                                 |
+| ---------------- | ------------------------------------- | ----------------------------------------------- |
+| Unitário         | `apps/api/src/**/*.spec.ts`           | configuração, serviços e controllers isolados   |
+| Integração       | `apps/api/test/*.integration-spec.ts` | conexão real, PostgreSQL e migrations           |
+| E2E da API       | `apps/api/test/*.e2e-spec.ts`         | aplicação NestJS e endpoints HTTP via Supertest |
+| E2E do navegador | `apps/e2e/tests`                      | jornadas críticas no Chromium                   |
+
+Os testes Playwright iniciam e encerram o Next.js automaticamente. Para assistir à execução:
+
+```bash
+pnpm --filter @mosaicgestao/e2e test:e2e:ui
+pnpm --filter @mosaicgestao/e2e test:e2e:debug
+```
+
+Em Linux, a primeira preparação completa do navegador pode exigir `sudo`:
+
+```bash
+pnpm --filter @mosaicgestao/e2e exec playwright install --with-deps chromium
+```
+
+As regras para novos testes estão em [`apps/e2e/README.md`](apps/e2e/README.md).
+
+## Frontend
+
+A rota `/login` não utiliza o layout administrativo. As telas internas ficam no route group `app/(system)` e herdam sidebar e cabeçalho sem acrescentar `(system)` à URL.
 
 ```text
-database: mosaicgestao
-user: mosaicgestao
-password: mosaicgestao_dev
-host: localhost
-port: 5432
+apps/web/src/app/
+├── login/page.tsx
+└── (system)/
+    ├── layout.tsx
+    └── dashboard/page.tsx
 ```
 
-É possível sobrescrever `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` e `POSTGRES_PORT` pelo ambiente. Os dados persistem no volume Docker nomeado `mosaicgestao_postgres_data`.
+O login e o dashboard ainda usam os dados visuais de referência do shadcn/ui. Autenticação, autorização e dados reais serão conectados nas respectivas histórias.
 
-```bash
-pnpm db:logs   # acompanha os logs do PostgreSQL
-pnpm db:down   # encerra o contêiner preservando os dados
-```
-
-Remover o volume apaga o banco local e deve ser uma ação manual e intencional.
-
-## Prisma e migrations
-
-O schema, o client e o histórico de migrations ficam em `packages/database`. Não altere o banco manualmente nem edite migrations que já tenham sido aplicadas.
-
-```bash
-pnpm db:generate            # regenera o client após alterar o schema
-pnpm db:migrate -- --name nome_da_mudanca
-pnpm db:deploy              # aplica migrations existentes sem criar novas
-pnpm db:studio              # abre o Prisma Studio
-pnpm test:integration       # valida conexão e migrations no banco local
-```
-
-Use `db:migrate` durante o desenvolvimento ao alterar o schema. Use `db:deploy` em checkout limpo, CI e produção.
-
-```bash
-pnpm build       # Compila os dois aplicativos
-pnpm start       # Inicia ambos em produção após o build
-pnpm lint        # Verifica os dois aplicativos
-pnpm test        # Teste unitário oficial do NestJS
-pnpm test:integration # Teste real do PostgreSQL
-pnpm test:e2e    # Testes HTTP da API e testes de navegador
-pnpm test:e2e:web # Apenas os testes Playwright
-```
-
-Para executar apenas um aplicativo: `pnpm --filter web dev` ou `pnpm --filter api dev`.
-
-## Testes E2E no navegador
-
-O Playwright fica isolado em `apps/e2e` e usa Chromium. Na primeira execução local, instale o navegador e depois rode os testes:
-
-```bash
-pnpm test:e2e:install
-pnpm test:e2e:web
-```
-
-O runner inicia e encerra o Next.js automaticamente. Se já houver um frontend na porta 3000, ele será reutilizado fora da CI. Em distribuições Linux novas, o Playwright pode solicitar a instalação adicional das dependências do sistema com `playwright install --with-deps chromium` e pedir a senha do `sudo`.
-
-Use `E2E_BASE_URL` para apontar o navegador para outro frontend, `E2E_API_BASE_URL` para a API e, quando a autenticação estiver implementada, `E2E_AUTH_STATE_PATH` para informar uma sessão real. Os critérios para escrever e manter novos testes estão em `apps/e2e/README.md`.
-
-## Dependências
-
-Frameworks e dependências consultados no registro npm durante a configuração: Next.js 16.3.4, NestJS 12.0.1, React 19.2.8 e Turborepo 2.10.12. O lockfile compartilhado torna a instalação reproduzível.
-
-Exceções de compatibilidade: TypeScript 6.0.3 é necessário porque o TypeScript 7.0.2 não oferece a API de compilação exigida pelo Nest CLI. ESLint 9.39.5 é a última versão da série suportada pelos plugins incluídos no `eslint-config-next`; eles ainda não suportam ESLint 10. Revisar essas restrições ao atualizar, executando build, lint e testes.
-
-O Prisma 7.10.0 está configurado com o driver PostgreSQL. Better Auth fica para uma etapa posterior. Nenhuma funcionalidade de negócio foi adicionada.
-
-## Decisões de persistência
-
-- **IDs:** entidades de domínio usarão UUID v4 gerado pela aplicação e coluna PostgreSQL `uuid`. IDs administrados por bibliotecas externas, como autenticação, seguem o contrato da biblioteca e permanecem strings quando necessário.
-- **Dinheiro:** valores usam `Decimal(19,4)` no banco e código de moeda ISO 4217 separado, inicialmente `BRL`. Nunca usar ponto flutuante (`number`) para cálculos monetários; transportar valores como string decimal.
-- **Data e hora:** instantes usam UTC em `timestamptz(3)` e trafegam em ISO 8601. Datas civis sem horário, como vencimento, usam `date`. Conversão para `America/Sao_Paulo` acontece apenas na apresentação.
-
-## Troubleshooting
-
-- **Porta 5432 ocupada:** altere `POSTGRES_PORT` no `.env` e ajuste a porta da `DATABASE_URL` para o mesmo valor.
-- **`DATABASE_URL` ausente ou inválida:** copie novamente `.env.example` para `.env` e reinicie a API.
-- **Client Prisma desatualizado:** execute `pnpm db:generate` e depois `pnpm build`.
-- **Banco ainda iniciando:** aguarde `pnpm db:up`; o comando só termina após o healthcheck ficar saudável.
-- **Migration inconsistente:** confira `pnpm --filter @mosaicgestao/database exec prisma migrate status`. Não apague o volume nem use reset se houver dados importantes.
-- **Recriar o banco local:** somente quando a perda for aceitável, execute `pnpm db:down`, remova manualmente o volume `mosaicgestao_postgres_data`, suba o banco e rode `pnpm db:deploy`.
-
-## Login e shadcn/ui
-
-A rota http://localhost:3000/login contém o bloco oficial `login-01`, apenas visual, sem autenticação. A configuração fica em `apps/web/components.json` e os componentes em `apps/web/src/components`.
-
-Execute os comandos do shadcn dentro do frontend:
+Execute comandos do shadcn dentro do frontend para que componentes e dependências permaneçam no workspace correto:
 
 ```bash
 cd apps/web
-pnpm dlx shadcn@latest add login-01
+pnpm dlx shadcn@latest add nome-do-componente
 ```
 
-Para outros componentes, substitua `login-01` pelo nome desejado. O pnpm mantém as dependências no aplicativo web e o lockfile na raiz do monorepo.
+Detalhes específicos do frontend estão em [`apps/web/README.md`](apps/web/README.md).
 
-## Dashboard e layout do sistema
+## API
 
-A rota http://localhost:3000/dashboard usa o bloco oficial `dashboard-01`, com os dados fictícios originais.
+A API valida as variáveis na inicialização, controla o ciclo de conexão do Prisma e expõe endpoints de saúde. Funcionalidades de negócio serão organizadas em módulos NestJS conforme o backlog.
 
-- `apps/web/src/app/(system)/layout.tsx`: estrutura compartilhada, sidebar e cabeçalho.
-- `apps/web/src/app/(system)/dashboard/page.tsx`: conteúdo do dashboard (cards, gráfico e tabela).
-- `apps/web/src/app/(system)/dashboard/data.json`: dados de exemplo da tabela.
-- `apps/web/src/app/login/page.tsx`: login independente, sem sidebar.
+Detalhes específicos estão em [`apps/api/README.md`](apps/api/README.md).
 
-Crie as próximas telas dentro de `app/(system)/` para herdar o layout. Por exemplo, `app/(system)/clientes/page.tsx` terá a URL `/clientes`; `(system)` não aparece na URL. O grupo organiza o layout, mas não protege as rotas: autenticação e redirecionamento após login ainda não foram implementados. O destino previsto após autenticar é `/dashboard`.
+## Integração contínua
 
-O bloco foi instalado em `apps/web` com `pnpm dlx shadcn@latest add dashboard-01` e depois separado em layout e página. Os demais itens de menu continuam como exemplos.
+O workflow `.github/workflows/ci.yml` executa em pull requests e pushes para `main`:
 
-Templates oficiais: [Next.js](https://nextjs.org/docs/app/getting-started/installation) e [NestJS](https://docs.nestjs.com/first-steps).
+- `Quality`: geração do Prisma Client, lint, typecheck, cobertura e build.
+- `Database tests`: PostgreSQL isolado, migrations, integração e E2E da API.
+- `Browser tests`: Chromium e smoke tests Playwright.
+
+Em falhas do navegador, screenshots, vídeos, traces e relatório HTML são armazenados como artifact por sete dias. O Dependabot verifica semanalmente dependências pnpm e GitHub Actions.
+
+## Fluxo Git
+
+O repositório privado usa o plano GitHub Free, portanto a proteção automática da `main` não está disponível. O processo abaixo é uma regra operacional do projeto:
+
+1. Atualizar a `main` local.
+2. Criar uma branch para a história ou alteração.
+3. Manter commits pequenos e identificáveis por task.
+4. Abrir uma pull request para `main`.
+5. Corrigir qualquer falha da CI na própria branch.
+6. Fazer `Squash and merge` somente com todos os checks verdes.
+7. Excluir a branch concluída.
+
+Não desenvolver funcionalidades diretamente na `main`.
+
+## Fontes de verdade
+
+| Informação                                 | Fonte oficial                                          |
+| ------------------------------------------ | ------------------------------------------------------ |
+| Necessidades e regras do produto           | [`projeto.prd`](projeto.prd)                           |
+| Prioridade, status, responsável e execução | Jira                                                   |
+| Decomposição técnica estável do MVP        | [`docs/jira-backlog-mvp.md`](docs/jira-backlog-mvp.md) |
+| Código e arquitetura implementada          | repositório Git                                        |
+| Versões instaladas                         | manifests e `pnpm-lock.yaml`                           |
+
+O backlog versionado não deve receber atualizações de status. Ele só muda quando houver alteração estrutural de escopo, critérios de aceite ou estratégia técnica. O andamento diário permanece exclusivamente no Jira.
+
+## Política de dependências
+
+- Novas bibliotecas devem usar a versão estável atual, consultada no momento da instalação.
+- O lockfile deve ser atualizado e versionado junto com o manifest.
+- Atualizações exigem lint, typecheck, testes e build.
+- Dependências não devem ser rebaixadas sem uma incompatibilidade documentada.
+
+Exceções atuais: TypeScript 6 é mantido enquanto a API de compilação exigida pelo Nest CLI não estiver disponível no TypeScript 7; ESLint 9 permanece enquanto os plugins do `eslint-config-next` não suportarem ESLint 10.
+
+## Troubleshooting
+
+- **`DATABASE_URL` ausente:** copie `.env.example` para `.env` e reinicie a API.
+- **Porta 5432 ocupada:** altere `POSTGRES_PORT` e a porta correspondente em `DATABASE_URL`.
+- **Client Prisma desatualizado:** execute `pnpm db:generate`.
+- **Banco ainda iniciando:** aguarde `pnpm db:up`, que termina após o healthcheck.
+- **Migration inconsistente:** execute `pnpm --filter @mosaicgestao/database exec prisma migrate status` antes de qualquer ação destrutiva.
+- **Chromium sem bibliotecas Linux:** execute a instalação do Playwright com `--with-deps`.
+- **Porta 3000 ou 3001 ocupada:** encerre a instância anterior antes de executar `pnpm dev`.
+
+## Documentos relacionados
+
+- [`projeto.prd`](projeto.prd): requisitos do produto.
+- [`docs/jira-backlog-mvp.md`](docs/jira-backlog-mvp.md): decomposição estável do MVP.
+- [`apps/e2e/README.md`](apps/e2e/README.md): padrões dos testes de navegador.

@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend
 
-## Getting Started
+Aplicação web do Mosaic Gestão, construída com Next.js App Router, React, Tailwind CSS e shadcn/ui.
 
-First, run the development server:
+## Execução
+
+A partir da raiz do monorepo:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm --filter web dev
+pnpm --filter web build
+pnpm --filter web start
+pnpm --filter web lint
+pnpm --filter web typecheck
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+O frontend de desenvolvimento fica disponível em http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Estrutura
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```text
+src/
+├── app/
+│   ├── login/       rota pública sem sidebar
+│   └── (system)/    rotas que compartilham o layout administrativo
+├── components/
+│   ├── ui/          componentes shadcn/ui
+│   └── *.tsx        componentes da aplicação
+├── hooks/
+└── lib/
+```
 
-## Learn More
+O route group `(system)` organiza o layout sem aparecer na URL. Ele ainda não representa proteção de acesso; a sessão será implementada com Better Auth.
 
-To learn more about Next.js, take a look at the following resources:
+## shadcn/ui
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Execute a CLI neste workspace:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+cd apps/web
+pnpm dlx shadcn@latest add nome-do-componente
+```
 
-## Deploy on Vercel
+Revise sempre o diff da CLI: componentes do shadcn passam a fazer parte do código do projeto e podem ser adaptados, desde que acessibilidade e testes sejam preservados.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Convenções
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Componentes são Server Components por padrão; use `"use client"` apenas quando necessário.
+- Novas páginas administrativas pertencem a `src/app/(system)`.
+- Prefira componentes existentes em `src/components/ui` antes de adicionar dependências.
+- Preserve seletores acessíveis usados pelo Playwright, como labels, roles e textos estáveis.
+- Variáveis expostas ao navegador devem usar o prefixo `NEXT_PUBLIC_` e nunca conter segredos.
+
+Consulte o [`README` raiz](../../README.md) para bootstrap, stack, testes e fluxo Git.
