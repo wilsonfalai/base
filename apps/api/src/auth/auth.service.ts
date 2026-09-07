@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createAuth, type Auth } from '@mosaicgestao/auth';
+import type { InternalUser } from '@mosaicgestao/auth/permissions';
 import { fromNodeHeaders } from 'better-auth/node';
 import type { IncomingHttpHeaders } from 'node:http';
 import type { Environment } from '../config/environment.js';
@@ -32,11 +33,19 @@ export class AuthService {
     return this.authInstance;
   }
 
-  getSession(headers: IncomingHttpHeaders) {
-    return this.auth.api.getSession({ headers: fromNodeHeaders(headers) });
+  async getSession(headers: IncomingHttpHeaders): Promise<AuthSession | null> {
+    const session = await this.auth.api.getSession({
+      headers: fromNodeHeaders(headers),
+    });
+
+    return session as AuthSession | null;
   }
 }
 
-export type AuthSession = NonNullable<
-  Awaited<ReturnType<AuthService['getSession']>>
+type CoreAuthSession = NonNullable<
+  Awaited<ReturnType<Auth['api']['getSession']>>
 >;
+
+export type AuthSession = Omit<CoreAuthSession, 'user'> & {
+  user: InternalUser;
+};

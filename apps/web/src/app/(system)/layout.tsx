@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react"
+import type { InternalUser } from "@mosaicgestao/auth/permissions"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
@@ -14,6 +15,8 @@ export default async function SystemLayout({ children }: { children: ReactNode }
     redirect("/login")
   }
 
+  const user = session.user as InternalUser
+
   return (
     <SidebarProvider
       style={
@@ -25,9 +28,10 @@ export default async function SystemLayout({ children }: { children: ReactNode }
     >
       <AppSidebar
         user={{
-          avatar: session.user.image ?? "",
-          email: session.user.email,
-          name: session.user.name,
+          avatar: user.image ?? "",
+          email: user.email,
+          name: user.name,
+          role: user.role,
         }}
         variant="inset"
       />

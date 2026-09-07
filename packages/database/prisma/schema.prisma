@@ -22,9 +22,25 @@ model User {
   banExpires    DateTime?
   sessions      Session[]
   accounts      Account[]
+  auditLogs     AuditLog[] @relation("AuditLogActor")
 
   @@unique([email])
   @@map("user")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  action      String
+  entityType  String
+  entityId    String
+  actorUserId String?
+  actor       User?    @relation("AuditLogActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([actorUserId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_log")
 }
 
 model Session {

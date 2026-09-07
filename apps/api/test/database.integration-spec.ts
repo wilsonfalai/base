@@ -31,7 +31,9 @@ describe('PostgreSQL integration', () => {
   });
 
   it('has all project migrations applied', async () => {
-    const migrations = await client.$queryRaw<Array<{ migration_name: string }>>`
+    const migrations = await client.$queryRaw<
+      Array<{ migration_name: string }>
+    >`
       SELECT migration_name
       FROM "_prisma_migrations"
       WHERE finished_at IS NOT NULL
@@ -41,6 +43,7 @@ describe('PostgreSQL integration', () => {
     expect(migrations.map(({ migration_name }) => migration_name)).toEqual([
       '20260907020000_initial_baseline',
       '20260907123242_add_better_auth',
+      '20260907174208_add_audit_log',
     ]);
   });
 });

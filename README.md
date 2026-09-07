@@ -162,6 +162,8 @@ pnpm db:studio
 - Instantes usam UTC em `timestamptz(3)` e trafegam em ISO 8601.
 - Datas civis, como vencimentos, usam `date`.
 - Conversões para `America/Sao_Paulo` acontecem na apresentação.
+- A trilha `AuditLog` registra autor, ação, entidade e instante sem copiar credenciais ou payloads sensíveis.
+- Novas entidades de domínio devem incluir `createdById` e `updatedById` quando houver criação ou alteração por usuário.
 
 ## Estratégia de testes
 

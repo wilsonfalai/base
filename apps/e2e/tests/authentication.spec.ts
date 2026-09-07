@@ -1,4 +1,4 @@
-import { e2eUser } from "../global-setup.js";
+import { e2eUsers } from "../global-setup.js";
 import { expect, test } from "../fixtures/test.js";
 
 const apiBaseUrl = process.env.E2E_API_BASE_URL ?? "http://localhost:3001";
@@ -22,6 +22,7 @@ test.describe("authentication", () => {
   test("logs in, shares the session with the API and logs out", async ({
     page,
   }) => {
+    const e2eUser = e2eUsers.collaborator;
     await page.goto("/login");
     await page.getByLabel("Email").fill(e2eUser.email);
     await page.getByLabel("Senha").fill(e2eUser.password);
