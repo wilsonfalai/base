@@ -1,0 +1,63 @@
+# Mosaic Gestão
+
+Base mínima com pnpm workspaces e Turborepo:
+
+- `apps/web`: Next.js com App Router, TypeScript e Tailwind CSS; página inicial oficial em http://localhost:3000.
+- `apps/api`: NestJS com TypeScript; `Hello World!` em http://localhost:3001.
+
+## Executar
+
+Use Node.js 24.14 ou superior e pnpm 12.3.4 (`npm install -g pnpm@12.3.4`).
+
+```bash
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+O comando inicia os dois aplicativos com recarga automática. Encerre com Ctrl+C.
+
+```bash
+pnpm build       # Compila os dois aplicativos
+pnpm start       # Inicia ambos em produção após o build
+pnpm lint        # Verifica os dois aplicativos
+pnpm test        # Teste unitário oficial do NestJS
+pnpm test:e2e    # Teste HTTP oficial do NestJS
+```
+
+Para executar apenas um aplicativo: `pnpm --filter web dev` ou `pnpm --filter api dev`.
+
+## Dependências
+
+Frameworks e dependências consultados no registro npm durante a configuração: Next.js 16.3.4, NestJS 12.0.1, React 19.2.8 e Turborepo 2.10.12. O lockfile compartilhado torna a instalação reproduzível.
+
+Exceções de compatibilidade: TypeScript 6.0.3 é necessário porque o TypeScript 7.0.2 não oferece a API de compilação exigida pelo Nest CLI. ESLint 9.39.5 é a última versão da série suportada pelos plugins incluídos no `eslint-config-next`; eles ainda não suportam ESLint 10. Revisar essas restrições ao atualizar, executando build, lint e testes.
+
+Docker, PostgreSQL, Prisma e Better Auth ficam para as próximas etapas. Nenhuma funcionalidade de negócio foi adicionada.
+
+## Login e shadcn/ui
+
+A rota http://localhost:3000/login contém o bloco oficial `login-01`, apenas visual, sem autenticação. A configuração fica em `apps/web/components.json` e os componentes em `apps/web/src/components`.
+
+Execute os comandos do shadcn dentro do frontend:
+
+```bash
+cd apps/web
+pnpm dlx shadcn@latest add login-01
+```
+
+Para outros componentes, substitua `login-01` pelo nome desejado. O pnpm mantém as dependências no aplicativo web e o lockfile na raiz do monorepo.
+
+## Dashboard e layout do sistema
+
+A rota http://localhost:3000/dashboard usa o bloco oficial `dashboard-01`, com os dados fictícios originais.
+
+- `apps/web/src/app/(system)/layout.tsx`: estrutura compartilhada, sidebar e cabeçalho.
+- `apps/web/src/app/(system)/dashboard/page.tsx`: conteúdo do dashboard (cards, gráfico e tabela).
+- `apps/web/src/app/(system)/dashboard/data.json`: dados de exemplo da tabela.
+- `apps/web/src/app/login/page.tsx`: login independente, sem sidebar.
+
+Crie as próximas telas dentro de `app/(system)/` para herdar o layout. Por exemplo, `app/(system)/clientes/page.tsx` terá a URL `/clientes`; `(system)` não aparece na URL. O grupo organiza o layout, mas não protege as rotas: autenticação e redirecionamento após login ainda não foram implementados. O destino previsto após autenticar é `/dashboard`.
+
+O bloco foi instalado em `apps/web` com `pnpm dlx shadcn@latest add dashboard-01` e depois separado em layout e página. Os demais itens de menu continuam como exemplos.
+
+Templates oficiais: [Next.js](https://nextjs.org/docs/app/getting-started/installation) e [NestJS](https://docs.nestjs.com/first-steps).

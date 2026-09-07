@@ -1,0 +1,1073 @@
+# PRD — Plataforma de Gestão Mosaic Digital
+
+**Versão:** 0.1
+**Data:** 06/09/2026
+**Status:** Documento inicial evolutivo
+**Produto:** Plataforma de Gestão Comercial, Contratual e Financeira
+**Primeiro usuário:** Mosaic Digital
+
+---
+
+## 1. Visão geral
+
+A Mosaic Digital deseja desenvolver uma plataforma própria para centralizar a gestão de clientes, vendas, serviços contratados, contratos e operações financeiras. O sistema será utilizado inicialmente pela própria empresa, mas deverá possuir uma base de domínio suficientemente genérica para permitir sua evolução e eventual utilização por outros tipos de negócios.
+
+A plataforma não será construída como um software exclusivo para agências, nem como um ERP ou CRM completo desde o primeiro momento. O objetivo é criar um núcleo comercial e financeiro sólido, capaz de receber posteriormente módulos de CRM, propostas, projetos, suporte, automações e integrações.
+
+O desenvolvimento será incremental. As telas e regras de negócio serão validadas durante a implementação, permitindo ajustes conforme o uso real da Mosaic Digital.
+
+### 1.1 Princípio central
+
+O sistema deve representar conceitos de negócio genéricos, como cliente, produto, venda, contrato, assinatura e cobrança, enquanto as particularidades da Mosaic serão aplicadas por meio de dados, configurações e módulos específicos.
+
+**Exemplo:** o núcleo conhece um serviço recorrente, mas não precisa possuir uma entidade exclusiva chamada “Plano de Manutenção de Sites”.
+
+---
+
+## 2. Contexto do negócio
+
+A Mosaic Digital oferece principalmente:
+
+* Criação de sites institucionais.
+* Desenvolvimento de sistemas sob demanda.
+* Suporte e manutenção recorrente de sites.
+* Serviços digitais adicionais que poderão ser incorporados ao catálogo.
+
+O fluxo comercial atual geralmente começa com o contato de um potencial cliente, coleta de informações e briefing, elaboração de proposta, aprovação, formalização de contrato e execução do serviço.
+
+A criação de um site costuma ser cobrada por valor fechado, com entrada de aproximadamente 30% e saldo na entrega ou em parcelas negociadas. A manutenção é um serviço recorrente, frequentemente com vigência mínima de 12 meses, cujo início pode ocorrer apenas após a entrega do site.
+
+Atualmente, parte dessas informações é controlada por documentos, ferramentas e processos separados. O sistema deverá centralizar principalmente os dados dos clientes e o controle financeiro, reduzindo a dependência de controles manuais dispersos.
+
+---
+
+## 3. Objetivos do produto
+
+### 3.1 Objetivos do MVP
+
+1. Centralizar o cadastro dos clientes da Mosaic.
+2. Manter um catálogo de produtos e serviços pontuais ou recorrentes.
+3. Registrar vendas com itens, valores e condições negociadas.
+4. Registrar contratos e associá-los às vendas quando aplicável.
+5. Controlar serviços recorrentes, vigências e regras de cobrança.
+6. Gerar e acompanhar parcelas e mensalidades.
+7. Controlar contas a receber, contas a pagar e pagamentos.
+8. Disponibilizar uma visão financeira básica e uma visão consolidada por cliente.
+9. Permitir o cadastro dos clientes e contratos existentes, mesmo sem histórico de CRM.
+10. Estabelecer uma arquitetura modular para crescimento futuro.
+
+### 3.2 Objetivos futuros
+
+* Gerenciar leads e oportunidades em um pipeline comercial.
+* Coletar briefings por formulários configuráveis.
+* Gerar propostas comerciais a partir do catálogo.
+* Gerar contratos por templates e integrar assinatura eletrônica.
+* Gerenciar projetos, entregas e tarefas.
+* Gerenciar chamados de suporte e solicitações de clientes.
+* Automatizar notificações e cobranças.
+* Integrar provedores de pagamento, Analytics, Search Console e outras ferramentas.
+* Disponibilizar relatórios operacionais e comerciais com apoio de IA.
+* Avaliar, futuramente, a transformação do produto em uma solução comercial para outras empresas.
+
+---
+
+## 4. Diretrizes de produto
+
+### 4.1 Genérico no domínio, simples na experiência
+
+A modelagem deve ser reutilizável, mas a interface inicial deve ser objetiva e adequada ao trabalho diário da Mosaic. Não é necessário expor ao usuário todas as possibilidades técnicas do sistema.
+
+### 4.2 Venda como registro comercial central
+
+Uma venda representa o acordo comercial fechado: cliente, itens vendidos, valores e condições. Ela pode ter origem em uma oportunidade ou proposta, mas também pode ser cadastrada diretamente.
+
+O contrato representa a formalização jurídica e não será obrigatório para toda venda.
+
+### 4.3 Separação entre venda, cobrança e pagamento
+
+O que foi vendido, o que deve ser cobrado e o que foi efetivamente recebido são conceitos diferentes. O sistema deve preservar essa separação para permitir parcelamentos, recorrências, pagamentos parciais e futuras integrações.
+
+### 4.4 Modularidade sem complexidade prematura
+
+A aplicação será um monólito modular. Não serão criados microserviços, motores universais de workflow, sistemas de campos dinâmicos generalizados ou estruturas multi-tenant complexas apenas para antecipar necessidades futuras.
+
+### 4.5 Validação contínua
+
+O documento define a direção e as regras essenciais. Detalhes de interface, nomenclatura, fluxos secundários e algumas políticas operacionais poderão ser modificados durante o desenvolvimento, desde que as mudanças sejam registradas.
+
+---
+
+## 5. Escopo do MVP
+
+### 5.1 Incluído
+
+| Módulo           | Funcionalidades principais                                                    |
+| ---------------- | ----------------------------------------------------------------------------- |
+| Autenticação     | Login, usuários internos e permissões básicas.                                |
+| Clientes         | Cadastro de empresas/pessoas, contatos, dados de cobrança e histórico básico. |
+| Catálogo         | Produtos e serviços, categorias, tipos de cobrança e preços de referência.    |
+| Vendas           | Registro de vendas, itens, descontos, valores e condições comerciais.         |
+| Contratos        | Registro de contratos, vigência, status e anexo do documento.                 |
+| Assinaturas      | Serviços recorrentes, datas de início e término, status e regras de cobrança. |
+| Faturamento      | Parcelas, faturas internas e geração de cobranças recorrentes.                |
+| Financeiro       | Contas a receber, contas a pagar, pagamentos e baixas manuais.                |
+| Dashboard        | Indicadores financeiros e operacionais básicos.                               |
+| Visão do cliente | Consulta consolidada de vendas, contratos, serviços e cobranças.              |
+
+### 5.2 Fora do MVP
+
+* CRM completo com pipeline Kanban e automações.
+* Formulários públicos de briefing.
+* Gerador de propostas comerciais.
+* Geração automática de contratos e assinatura eletrônica.
+* Gestão completa de projetos e tarefas.
+* Portal de clientes.
+* Help desk e controle de SLA.
+* Integração bancária e conciliação automática.
+* Emissão de notas fiscais.
+* Contabilidade, folha de pagamento e obrigações fiscais.
+* Motor de automações configurável.
+* Multi-tenant comercial e white label.
+* Relatórios avançados com IA.
+
+Esses recursos deverão ser considerados na organização dos módulos, mas não precisam ser implementados antecipadamente.
+
+---
+
+## 6. Modelo conceitual do negócio
+
+### 6.1 Fluxo completo previsto
+
+```text
+Empresa / Contato
+        │
+        ▼
+Oportunidade (futuro)
+        │
+        ▼
+Proposta (futuro)
+        │
+        ▼
+Venda / Pedido
+        │
+        ├── Itens vendidos
+        │       ├── Serviço pontual
+        │       └── Serviço recorrente
+        │
+        ├── Contrato (quando aplicável)
+        │
+        ├── Plano de cobrança
+        │       ├── Parcelas
+        │       └── Cobranças recorrentes
+        │
+        └── Entrega / Pós-venda (futuro)
+                ├── Projeto
+                ├── Serviço ativo
+                └── Suporte
+
+Plano de cobrança
+        │
+        ▼
+Fatura / Conta a receber
+        │
+        ▼
+Pagamento
+```
+
+No MVP, o usuário poderá iniciar diretamente pela venda, sem precisar cadastrar uma oportunidade ou proposta.
+
+### 6.2 Conceitos fundamentais
+
+**Account / Cliente:** organização ou pessoa com a qual a empresa mantém relacionamento comercial. Pode ser prospect, cliente ativo ou cliente inativo, sem necessidade de duplicar o cadastro.
+
+**Contact / Contato:** pessoa relacionada ao cliente, podendo possuir função comercial, técnica ou financeira.
+
+**Product / Produto:** item genérico do catálogo, podendo representar produto físico, serviço pontual ou serviço recorrente.
+
+**Price / Preço:** definição de preço de referência e modelo de cobrança. O MVP poderá iniciar com uma estrutura simplificada, desde que permita futura separação entre produto e tabelas de preço.
+
+**Order / Venda:** registro de um negócio fechado ou de uma contratação registrada diretamente no sistema.
+
+**OrderItem / Item da venda:** cópia das condições negociadas de um produto ou serviço em determinada venda.
+
+**Contract / Contrato:** registro do acordo formal, incluindo vigência, status, documentos e condições específicas.
+
+**Subscription / Assinatura:** representa a continuidade de um serviço recorrente e seu ciclo de vida.
+
+**BillingSchedule / Plano de cobrança:** define quando e quanto deve ser cobrado, seja por parcelas ou recorrências.
+
+**Invoice / Fatura:** documento interno que organiza uma cobrança ao cliente.
+
+**Receivable / Conta a receber:** título financeiro que representa um valor devido pelo cliente.
+
+**Payment / Pagamento:** registro do recebimento efetivo, permitindo baixa total ou parcial.
+
+**Payable / Conta a pagar:** obrigação financeira da Mosaic com fornecedores e outros credores.
+
+---
+
+## 7. Módulo de clientes
+
+### 7.1 Funcionalidades
+
+O sistema deverá permitir cadastrar, editar, consultar e inativar clientes. O cadastro poderá representar pessoa jurídica ou pessoa física.
+
+Dados iniciais sugeridos:
+
+* Nome ou razão social.
+* Nome fantasia, quando aplicável.
+* CPF ou CNPJ.
+* E-mail principal.
+* Telefone e WhatsApp.
+* Endereço.
+* Dados de cobrança.
+* Observações.
+* Status do relacionamento.
+* Contatos vinculados.
+
+O cadastro de contatos deverá permitir nome, e-mail, telefone, cargo/função e identificação de contato principal ou financeiro.
+
+### 7.2 Visão 360º do cliente
+
+A página de detalhes do cliente deverá consolidar, progressivamente:
+
+* Dados cadastrais.
+* Contatos.
+* Vendas realizadas.
+* Contratos.
+* Serviços e assinaturas ativas.
+* Faturas e contas a receber.
+* Histórico de pagamentos.
+* Observações e histórico básico.
+
+No futuro, a mesma página poderá receber abas de oportunidades, propostas, projetos e chamados.
+
+### 7.3 Regras essenciais
+
+* Um cliente poderá possuir múltiplos contatos.
+* Um cliente poderá possuir múltiplas vendas e contratos.
+* O cadastro não deverá ser duplicado quando um prospect se tornar cliente.
+* Clientes com histórico financeiro não deverão ser excluídos fisicamente pela interface comum; deverão ser inativados.
+* A definição exata de status comerciais será refinada na implementação.
+
+---
+
+## 8. Módulo de catálogo
+
+### 8.1 Objetivo
+
+Disponibilizar uma base de produtos e serviços reutilizáveis na criação de vendas e, futuramente, propostas.
+
+### 8.2 Dados iniciais
+
+* Nome.
+* Código ou SKU interno opcional.
+* Descrição.
+* Categoria.
+* Tipo: produto ou serviço.
+* Modelo de cobrança: pontual ou recorrente.
+* Preço de referência.
+* Moeda (BRL no MVP).
+* Status ativo/inativo.
+
+Para itens recorrentes, poderão existir configurações padrão, como intervalo mensal ou anual e vigência sugerida. Essas informações serão apenas referências e poderão ser alteradas na venda.
+
+### 8.3 Exemplos do catálogo da Mosaic
+
+| Item                          | Tipo    | Cobrança          |
+| ----------------------------- | ------- | ----------------- |
+| Criação de site institucional | Serviço | Pontual           |
+| Desenvolvimento de sistema    | Serviço | Pontual           |
+| Suporte e manutenção básico   | Serviço | Recorrente mensal |
+| Suporte e manutenção avançado | Serviço | Recorrente mensal |
+
+O catálogo não deverá conter regras de negócio fixas exclusivas desses serviços.
+
+### 8.4 Regra de snapshot
+
+Ao adicionar um produto a uma venda, o sistema deverá preservar nome, descrição, preço, quantidade e condições negociadas no item da venda. Alterações futuras no catálogo não poderão modificar valores históricos já acordados.
+
+---
+
+## 9. Módulo de vendas
+
+### 9.1 Objetivo
+
+Registrar o negócio fechado e servir como ponto de integração entre catálogo, contratos, faturamento e entrega futura.
+
+### 9.2 Cadastro de venda
+
+O usuário deverá conseguir:
+
+1. Selecionar o cliente.
+2. Adicionar um ou mais itens do catálogo.
+3. Ajustar descrição, quantidade, preço e desconto.
+4. Definir condições comerciais.
+5. Configurar o plano de cobrança.
+6. Associar ou cadastrar um contrato, quando aplicável.
+7. Confirmar a venda.
+8. Consultar o histórico e seus desdobramentos.
+
+### 9.3 Dados principais
+
+* Número interno da venda.
+* Cliente.
+* Data da venda.
+* Responsável.
+* Status.
+* Itens vendidos.
+* Valores e descontos.
+* Valor pontual total.
+* Valor recorrente contratado, quando existir.
+* Condições comerciais.
+* Referência a oportunidade/proposta futura, quando existir.
+
+### 9.4 Status iniciais sugeridos
+
+* Rascunho.
+* Confirmada.
+* Cancelada.
+
+Status adicionais poderão ser introduzidos conforme a necessidade. A confirmação de uma venda deverá ser uma ação explícita, responsável por validar os dados e gerar os desdobramentos financeiros configurados.
+
+### 9.5 Regras essenciais
+
+* Uma venda poderá conter itens pontuais e recorrentes.
+* Uma venda não precisará ter origem em CRM.
+* Uma venda poderá ter ou não contrato formal.
+* Após confirmada, alterações financeiras relevantes deverão ser controladas para preservar o histórico.
+* O cancelamento não poderá apagar pagamentos já registrados.
+* Regras detalhadas para aditivos, alterações de valores e cancelamentos com cobranças existentes serão definidas em evolução específica.
+
+---
+
+## 10. Módulo de contratos
+
+### 10.1 Objetivo
+
+Registrar os documentos e condições que formalizam a relação comercial, sem fazer do contrato uma dependência obrigatória de toda venda.
+
+### 10.2 Funcionalidades do MVP
+
+* Cadastro de contrato.
+* Associação com cliente e venda.
+* Número ou referência.
+* Tipo de contrato.
+* Data de assinatura.
+* Data de início e término, quando aplicável.
+* Status.
+* Observações.
+* Upload do documento assinado.
+* Consulta dos serviços e cobranças relacionados.
+
+### 10.3 Regras
+
+* Uma venda poderá existir sem contrato.
+* O modelo inicial poderá adotar uma associação simples entre venda e contrato, preservando a possibilidade de evolução para relações mais complexas.
+* A vigência do contrato não será necessariamente igual à vigência de cada serviço.
+* O contrato não deverá ser utilizado como único local de armazenamento das regras financeiras.
+* Templates, geração de PDF, assinatura eletrônica e aditivos ficam para etapas futuras.
+
+---
+
+## 11. Assinaturas e serviços recorrentes
+
+### 11.1 Objetivo
+
+Representar serviços que permanecem ativos ao longo do tempo, com condições comerciais e ciclo de faturamento próprios.
+
+### 11.2 Dados principais
+
+* Cliente.
+* Item de venda de origem.
+* Produto/plano de referência.
+* Valor recorrente contratado.
+* Intervalo de cobrança.
+* Data de início do serviço.
+* Data de término, quando houver.
+* Vigência mínima, quando aplicável.
+* Status.
+* Regra de vencimento.
+* Próximo período a faturar.
+* Política de renovação, a ser definida.
+
+### 11.3 Status sugeridos
+
+* Pendente de ativação.
+* Ativa.
+* Pausada.
+* Encerrada.
+* Cancelada.
+
+A implementação inicial poderá utilizar apenas os estados necessários ao fluxo real, mantendo o modelo preparado para os demais.
+
+### 11.4 Separação de datas
+
+O sistema deverá distinguir:
+
+1. Data da venda.
+2. Data de assinatura do contrato.
+3. Data de início do serviço.
+4. Período de competência.
+5. Data de emissão ou geração da cobrança.
+6. Data de vencimento.
+7. Data de pagamento.
+
+Essas datas não devem ser tratadas como equivalentes.
+
+### 11.5 Exemplo da Mosaic
+
+Um cliente contrata um site e manutenção mensal de R$ 250 por 12 meses. O contrato é assinado em 01/09/2026, mas o site é entregue em 15/09/2026.
+
+A manutenção poderá iniciar em 15/09/2026, com primeiro período de competência de 15/09/2026 a 14/10/2026. O vencimento poderá ser definido para uma data negociada, independentemente do período de competência.
+
+A ativação da assinatura poderá ocorrer manualmente no MVP. Futuramente, a entrega de um projeto poderá disparar a ativação automaticamente.
+
+### 11.6 Regras essenciais
+
+* Uma assinatura deverá possuir um item de venda de origem ou outra origem comercial identificável.
+* A alteração do preço do catálogo não altera automaticamente assinaturas existentes.
+* A assinatura deverá manter histórico das cobranças geradas.
+* O sistema deverá impedir geração duplicada do mesmo ciclo.
+* Alterações de plano, reajustes, pausas e cancelamentos deverão ter regras próprias, a serem detalhadas após o funcionamento do fluxo básico.
+
+---
+
+## 12. Faturamento e planos de cobrança
+
+### 12.1 Objetivo
+
+Transformar as condições comerciais de uma venda em cobranças financeiras.
+
+### 12.2 Cobranças pontuais
+
+O sistema deverá permitir criar uma ou mais parcelas para um item ou venda pontual, com valores e vencimentos negociáveis.
+
+Exemplo:
+
+* Site: R$ 5.000.
+* Entrada: R$ 1.500.
+* Saldo: R$ 3.500 na entrega ou parcelado conforme negociação.
+
+O usuário deverá poder ajustar a quantidade, valores e datas das parcelas antes da confirmação.
+
+### 12.3 Cobranças recorrentes
+
+O sistema deverá gerar cobranças a partir das regras de uma assinatura, considerando:
+
+* Valor.
+* Intervalo.
+* Início.
+* Período de competência.
+* Regra de vencimento.
+* Data de encerramento ou cancelamento, quando aplicável.
+
+A geração poderá ocorrer por processo agendado, com possibilidade de execução manual controlada no ambiente administrativo.
+
+### 12.4 Regras essenciais
+
+* Não gerar duas cobranças para a mesma assinatura e competência.
+* Preservar o valor e as condições de cada cobrança já gerada.
+* Permitir consultar a origem de cada cobrança.
+* Não alterar silenciosamente faturas pagas quando uma assinatura é modificada.
+* Tratar antecipação, proporcionalidade, reajuste e cancelamento de ciclos como políticas configuráveis ou regras futuras, sem tentar resolver todos os cenários no MVP.
+
+---
+
+## 13. Módulo financeiro
+
+### 13.1 Objetivo
+
+Controlar valores previstos e realizados da Mosaic Digital, tanto de receitas quanto de despesas.
+
+### 13.2 Contas a receber
+
+Funcionalidades:
+
+* Listar contas a receber.
+* Criar conta manualmente.
+* Gerar contas a partir de vendas e recorrências.
+* Definir cliente, descrição, valor e vencimento.
+* Registrar pagamentos totais ou parciais.
+* Consultar saldo em aberto.
+* Filtrar por cliente, período e status.
+* Identificar contas vencidas.
+* Cancelar ou ajustar títulos conforme permissões e regras.
+
+### 13.3 Contas a pagar
+
+Funcionalidades:
+
+* Cadastrar fornecedores ou credores.
+* Registrar despesas e contas a pagar.
+* Definir categoria, descrição, valor e vencimento.
+* Registrar pagamento.
+* Consultar contas abertas e vencidas.
+* Filtrar por período, categoria e status.
+* Permitir despesas recorrentes em uma evolução próxima, caso não sejam implementadas na primeira entrega financeira.
+
+### 13.4 Pagamentos
+
+O pagamento deverá representar um valor efetivamente recebido ou pago. O sistema deverá permitir registrar data, valor, forma de pagamento, observações e referência externa opcional.
+
+O modelo deverá suportar pagamentos parciais e manter a possibilidade futura de um pagamento quitar múltiplos títulos por meio de alocações. A interface inicial poderá simplificar esse fluxo para baixa de uma conta por vez.
+
+### 13.5 Faturas internas
+
+No MVP, a fatura será um documento de cobrança interno e não uma nota fiscal. O sistema não realizará emissão fiscal nesta etapa.
+
+A fatura poderá conter itens, valor, vencimento e status, mantendo vínculo com a conta a receber. A implementação poderá simplificar a experiência, mas deverá preservar a distinção conceitual entre cobrança e recebimento.
+
+### 13.6 Indicadores financeiros iniciais
+
+* Total a receber.
+* Total vencido.
+* Total recebido no mês.
+* Total a pagar.
+* Total pago no mês.
+* Saldo financeiro por período.
+* Receita recorrente contratada ativa (quando o módulo estiver consolidado).
+* Próximos vencimentos.
+
+Os indicadores deverão informar claramente se representam valores previstos, efetivamente pagos ou valores contratuais. Receita recorrente não deverá ser confundida com dinheiro recebido.
+
+---
+
+## 14. Dashboard e relatórios
+
+O dashboard inicial deverá priorizar a operação diária e a tomada de decisão simples, sem exigir uma infraestrutura complexa de BI.
+
+### 14.1 Componentes sugeridos
+
+* Resumo financeiro do mês.
+* Contas a receber vencidas.
+* Próximos recebimentos.
+* Próximas contas a pagar.
+* Clientes ativos.
+* Assinaturas ativas.
+* Receita recorrente contratada.
+* Atalhos para cadastrar cliente, venda e despesa.
+
+### 14.2 Relatórios iniciais
+
+* Contas a receber por período.
+* Contas a pagar por período.
+* Recebimentos realizados.
+* Receita por cliente.
+* Assinaturas ativas.
+* Vendas por período.
+
+Exportação CSV poderá ser incluída conforme a necessidade durante a implementação.
+
+---
+
+## 15. Fluxos principais do MVP
+
+### 15.1 Cadastrar um cliente existente
+
+1. Usuário acessa Clientes.
+2. Cadastra os dados da empresa.
+3. Adiciona contatos principais.
+4. Salva o cadastro.
+5. O cliente fica disponível para vendas, contratos e lançamentos financeiros.
+
+### 15.2 Registrar uma venda de site com manutenção
+
+1. Usuário seleciona o cliente.
+2. Cria uma venda.
+3. Adiciona “Criação de site”.
+4. Adiciona “Suporte e manutenção básico”.
+5. Define o valor negociado de cada item.
+6. Configura as parcelas do site.
+7. Configura a assinatura, que poderá ficar pendente de ativação.
+8. Associa ou anexa o contrato.
+9. Confirma a venda.
+10. O sistema registra as cobranças pontuais e a recorrência conforme as condições definidas.
+
+### 15.3 Ativar a manutenção após a entrega
+
+1. Usuário acessa a assinatura pendente.
+2. Informa a data real de início.
+3. Confirma a ativação.
+4. O sistema calcula o primeiro período de competência.
+5. A recorrência passa a gerar cobranças conforme sua regra.
+
+### 15.4 Registrar recebimento
+
+1. Usuário acessa uma conta a receber.
+2. Informa valor recebido, data e forma de pagamento.
+3. Confirma a baixa.
+4. O sistema atualiza o saldo e o status da conta.
+5. O histórico do pagamento permanece disponível.
+
+### 15.5 Registrar uma despesa
+
+1. Usuário acessa Contas a pagar.
+2. Informa fornecedor, categoria, descrição, valor e vencimento.
+3. Salva a conta.
+4. Posteriormente registra o pagamento.
+5. O dashboard e os relatórios refletem a movimentação.
+
+---
+
+## 16. Arquitetura técnica inicial
+
+### 16.1 Stack recomendada
+
+| Camada         | Tecnologia                          |
+| -------------- | ----------------------------------- |
+| Monorepo       | Turborepo + pnpm                    |
+| Frontend       | Next.js                             |
+| UI             | Tailwind CSS + shadcn/ui            |
+| Formulários    | React Hook Form + Zod               |
+| Tabelas        | TanStack Table                      |
+| Backend        | NestJS                              |
+| Banco de dados | PostgreSQL                          |
+| ORM            | Prisma ORM                          |
+| Autenticação   | Better Auth                         |
+| Filas e jobs   | Redis + BullMQ, quando necessário   |
+| Testes         | Vitest/Jest, Supertest e Playwright |
+| CI/CD          | GitHub Actions                      |
+
+A seleção poderá ser ajustada durante a implementação, mas recomenda-se manter uma stack única e consistente, evitando introduzir ferramentas sem necessidade concreta.
+
+### 16.2 Organização do monorepo
+
+```text
+apps/
+  web/
+  api/
+
+packages/
+  ui/
+  shared/
+  database/
+  config/
+
+apps/api/src/modules/
+  auth/
+  users/
+  customers/
+  catalog/
+  sales/
+  contracts/
+  subscriptions/
+  billing/
+  financial/
+  dashboard/
+```
+
+Futuramente:
+
+```text
+  crm/
+  proposals/
+  projects/
+  support/
+  integrations/
+  automations/
+```
+
+### 16.3 Diretrizes arquiteturais
+
+* Utilizar monólito modular no backend.
+* Separar responsabilidades por domínio.
+* Evitar dependências circulares entre módulos.
+* Centralizar validações e regras de negócio no backend.
+* Utilizar transações de banco para operações financeiras compostas.
+* Trabalhar com valores monetários em decimal de precisão adequada ou representação inteira em centavos, nunca ponto flutuante impreciso.
+* Armazenar datas e horários com convenção consistente, considerando o fuso de exibição do usuário.
+* Preparar jobs recorrentes para execução idempotente.
+* Não criar infraestrutura multi-tenant comercial no MVP.
+* Manter migrations versionadas e ambiente de desenvolvimento reproduzível.
+
+---
+
+## 17. Modelo de dados conceitual
+
+As entidades abaixo representam a direção inicial e poderão ser refinadas durante a modelagem física do banco.
+
+```text
+Account
+  ├── Contact
+  ├── Order
+  │     ├── OrderItem ── Product
+  │     ├── Contract
+  │     └── BillingSchedule
+  │             └── Invoice
+  │                   └── Receivable
+  │                         └── PaymentAllocation
+  │                               └── Payment
+  │
+  ├── Subscription
+  │     └── BillingSchedule
+  │
+  └── Opportunity (futuro)
+          └── Quote (futuro)
+
+Supplier / Creditor
+  └── Payable
+        └── Payment / PaymentAllocation
+```
+
+### 17.1 Entidades iniciais sugeridas
+
+| Entidade          | Campos e responsabilidades principais                              |
+| ----------------- | ------------------------------------------------------------------ |
+| Account           | Identificador, tipo, nome, documento, status e dados cadastrais.   |
+| Contact           | Cliente, nome, e-mail, telefone, função e flags de contato.        |
+| Product           | Nome, descrição, categoria, tipo e status.                         |
+| Price             | Produto, valor, moeda, modelo e intervalo de cobrança.             |
+| Order             | Cliente, data, status, responsável, totais e condições.            |
+| OrderItem         | Venda, produto de referência, snapshot, quantidade, preço e total. |
+| Contract          | Cliente, venda, número, vigência, status e documento.              |
+| Subscription      | Cliente, item de origem, valor, intervalo, datas e status.         |
+| BillingSchedule   | Origem, regra de geração, vencimento e próxima competência.        |
+| Invoice           | Cliente, número, itens, valor, vencimento e status.                |
+| Receivable        | Cliente, origem, valor, saldo, vencimento e status.                |
+| Payment           | Valor, data, método, referência e observações.                     |
+| PaymentAllocation | Associação entre pagamento e título, com valor alocado.            |
+| Payable           | Credor, categoria, descrição, valor, vencimento e saldo.           |
+| User              | Usuário interno, autenticação e status.                            |
+
+O diagrama não determina todas as cardinalidades ou chaves estrangeiras. Essas decisões serão detalhadas no schema de implementação.
+
+---
+
+## 18. Regras transversais essenciais
+
+### 18.1 Integridade financeira
+
+* Valores históricos não devem ser alterados por mudanças no catálogo.
+* Pagamentos registrados devem manter rastreabilidade.
+* Uma conta paga não poderá ser simplesmente excluída.
+* Operações que geram múltiplos registros financeiros deverão ser transacionais.
+* Cancelamentos e ajustes deverão preservar o histórico necessário para auditoria.
+
+### 18.2 Idempotência
+
+A geração de parcelas, faturas e recorrências deverá possuir mecanismos que evitem duplicidade, especialmente em reexecuções de jobs ou falhas de processamento.
+
+### 18.3 Permissões
+
+O MVP deverá possuir autenticação e perfis básicos, como administrador e colaborador. Permissões mais granulares, por módulo ou ação, poderão ser introduzidas posteriormente.
+
+### 18.4 Auditoria
+
+Registrar ao menos informações de criação e atualização dos principais registros. Para operações financeiras sensíveis, manter autoria e histórico de alterações relevantes. Uma trilha de auditoria completa poderá ser desenvolvida de forma incremental.
+
+### 18.5 Dados e segurança
+
+* Validar entradas no backend.
+* Proteger informações pessoais e financeiras.
+* Implementar controle de acesso.
+* Manter backups e política de recuperação.
+* Evitar exposição de dados sensíveis em logs.
+* Considerar os princípios da LGPD no tratamento dos dados de clientes.
+
+---
+
+## 19. Experiência de usuário e telas
+
+### 19.1 Navegação inicial
+
+```text
+Visão geral
+Clientes
+Catálogo
+Vendas
+Contratos
+Assinaturas
+Financeiro
+  ├── Contas a receber
+  ├── Contas a pagar
+  ├── Faturas
+  └── Relatórios
+Configurações
+```
+
+A navegação poderá ser ajustada durante a implementação. Não será necessário exibir módulos futuros sem funcionalidade real.
+
+### 19.2 Telas prioritárias
+
+1. Login.
+2. Dashboard.
+3. Listagem e cadastro de clientes.
+4. Detalhes do cliente.
+5. Catálogo de produtos/serviços.
+6. Cadastro e detalhes da venda.
+7. Cadastro e detalhes de contrato.
+8. Listagem e detalhes de assinaturas.
+9. Contas a receber.
+10. Contas a pagar.
+11. Registro de pagamento.
+12. Configurações básicas.
+
+### 19.3 Diretrizes de interface
+
+* Interface administrativa responsiva.
+* Componentes consistentes com shadcn/ui.
+* Formulários com validação clara.
+* Tabelas com busca, filtros e paginação quando necessário.
+* Ações críticas com confirmação apropriada.
+* Estados de carregamento, erro e vazio.
+* Foco em reduzir etapas para operações frequentes.
+* Validação das telas com o usuário durante o desenvolvimento.
+
+---
+
+## 20. Evolução futura do CRM
+
+O CRM será construído sobre o cadastro existente de clientes e contatos.
+
+### 20.1 Entidades futuras
+
+* Opportunity.
+* Pipeline.
+* PipelineStage.
+* Activity.
+* Quote.
+* QuoteItem.
+* LeadSource.
+* LossReason.
+
+### 20.2 Fluxo futuro
+
+```text
+Novo contato
+   ↓
+Empresa / Contato
+   ↓
+Oportunidade
+   ↓
+Briefing
+   ↓
+Proposta
+   ↓
+Negociação
+   ↓
+Ganha ou perdida
+   ↓
+Venda
+```
+
+Oportunidades poderão ser marcadas como ganhas ou perdidas, permitindo análise de conversão, origem dos leads, motivos de perda e desempenho comercial.
+
+Uma proposta aprovada poderá gerar uma venda, preservando snapshots dos itens e condições. Vendas diretas continuarão sendo permitidas.
+
+---
+
+## 21. Evolução futura de entrega e pós-venda
+
+O núcleo comercial não deverá assumir que toda venda gera um projeto. A entrega será tratada como uma camada extensível.
+
+Exemplos:
+
+* Venda de site → projeto de desenvolvimento.
+* Venda de sistema → projeto de software.
+* Venda de manutenção → assinatura e serviço ativo.
+* Venda de consultoria → ordem de serviço ou projeto.
+* Venda de produto físico → processo de expedição, caso esse cenário venha a ser suportado.
+
+Para a Mosaic, os primeiros módulos de pós-venda provavelmente serão projetos, suporte e acompanhamento de serviços recorrentes.
+
+---
+
+## 22. Backlog inicial por épicos
+
+### Épico 1 — Fundação da aplicação
+
+**Objetivo:** disponibilizar a estrutura técnica, autenticação e layout administrativo.
+
+Entregas:
+
+* Configuração do monorepo.
+* Aplicações frontend e backend.
+* Banco e migrations.
+* Autenticação.
+* Usuários internos.
+* Layout base.
+* Tratamento de erros e validações.
+* Pipeline inicial de testes e deploy.
+
+**Critério de aceite:** um usuário autorizado consegue acessar a aplicação e navegar pelas telas protegidas.
+
+### Épico 2 — Gestão de clientes
+
+**Objetivo:** centralizar o cadastro e os contatos.
+
+Entregas:
+
+* CRUD de clientes.
+* CRUD de contatos.
+* Listagem com filtros.
+* Tela de detalhes.
+* Inativação.
+* Dados de cobrança.
+
+**Critério de aceite:** é possível cadastrar um cliente real da Mosaic e consultar suas informações em uma página consolidada.
+
+### Épico 3 — Catálogo de produtos e serviços
+
+**Objetivo:** cadastrar os itens comercializados.
+
+Entregas:
+
+* CRUD de produtos/serviços.
+* Categorias.
+* Preços de referência.
+* Identificação de cobrança pontual ou recorrente.
+* Ativação/inativação.
+
+**Critério de aceite:** é possível cadastrar criação de site e planos de manutenção e utilizá-los em uma venda.
+
+### Épico 4 — Vendas
+
+**Objetivo:** registrar negócios fechados.
+
+Entregas:
+
+* Cadastro de venda.
+* Seleção de cliente.
+* Itens do catálogo.
+* Preços e descontos negociados.
+* Totais.
+* Condições comerciais.
+* Confirmação da venda.
+* Consulta do histórico.
+
+**Critério de aceite:** é possível registrar uma venda contendo site e manutenção com valores próprios, sem alterar os preços do catálogo.
+
+### Épico 5 — Contratos
+
+**Objetivo:** registrar acordos comerciais formalizados.
+
+Entregas:
+
+* Cadastro de contrato.
+* Associação com cliente e venda.
+* Datas e status.
+* Upload de documento.
+* Consulta pelo cliente.
+
+**Critério de aceite:** é possível anexar um contrato assinado a uma venda e consultá-lo posteriormente.
+
+### Épico 6 — Financeiro básico
+
+**Objetivo:** controlar receitas e despesas.
+
+Entregas:
+
+* Contas a receber.
+* Contas a pagar.
+* Parcelas.
+* Registro de pagamentos.
+* Baixa parcial e total.
+* Filtros por status e período.
+* Indicadores financeiros básicos.
+
+**Critério de aceite:** é possível cadastrar as parcelas de um site, registrar recebimentos e consultar corretamente o saldo em aberto.
+
+### Épico 7 — Assinaturas e recorrências
+
+**Objetivo:** automatizar o controle de mensalidades.
+
+Entregas:
+
+* Cadastro de assinatura.
+* Ativação e encerramento.
+* Definição de vigência.
+* Regras de competência e vencimento.
+* Geração recorrente.
+* Prevenção de duplicidade.
+* Consulta das cobranças geradas.
+
+**Critério de aceite:** é possível cadastrar um plano mensal, ativá-lo em uma data definida e gerar corretamente as cobranças sem duplicar competências.
+
+### Épico 8 — Dashboard e visão consolidada
+
+**Objetivo:** oferecer uma visão operacional útil da empresa.
+
+Entregas:
+
+* Resumo financeiro.
+* Próximos vencimentos.
+* Contas vencidas.
+* Indicadores de clientes e assinaturas.
+* Visão 360º do cliente.
+* Relatórios básicos.
+
+**Critério de aceite:** o usuário consegue identificar os principais valores a receber e pagar e consultar o histórico financeiro de um cliente sem recorrer a controles externos.
+
+---
+
+## 23. Estratégia de desenvolvimento
+
+O desenvolvimento deverá ocorrer em entregas pequenas e testáveis. Cada épico poderá ser dividido em histórias de usuário e tarefas técnicas, com demonstrações frequentes das telas e fluxos.
+
+### Processo sugerido
+
+1. Definir o escopo do próximo épico.
+2. Refinar as regras necessárias para aquele fluxo.
+3. Criar histórias de usuário e critérios de aceite.
+4. Implementar backend e frontend.
+5. Testar com dados reais ou representativos da Mosaic.
+6. Registrar ajustes solicitados.
+7. Atualizar o PRD quando uma decisão alterar o domínio ou o comportamento esperado.
+8. Avançar para o próximo incremento.
+
+Não será necessário detalhar antecipadamente todos os campos, validações e cenários de todos os módulos futuros.
+
+---
+
+## 24. Decisões em aberto
+
+As decisões abaixo deverão ser resolvidas durante o refinamento dos respectivos épicos, sem bloquear o início do projeto.
+
+| Tema         | Decisão a validar                                                        |
+| ------------ | ------------------------------------------------------------------------ |
+| Catálogo     | Utilizar Price separado desde o início ou simplificar a primeira versão. |
+| Contratos    | Cardinalidade entre vendas e contratos e necessidade de aditivos.        |
+| Faturamento  | Estrutura exata de Invoice e Receivable no MVP.                          |
+| Recorrências | Política de cobrança antecipada ou pós-paga.                             |
+| Recorrências | Tratamento de meses com quantidade diferente de dias.                    |
+| Recorrências | Regras de proporcionalidade no primeiro e último ciclo.                  |
+| Recorrências | Reajustes, pausas, cancelamentos e renovação automática.                 |
+| Financeiro   | Categorias, centros de custo e contas bancárias.                         |
+| Financeiro   | Estornos, reembolsos e compensações.                                     |
+| Usuários     | Perfis e permissões necessários à equipe.                                |
+| Migração     | Estratégia de importação dos clientes e cobranças existentes.            |
+| Integrações  | Provedor de pagamento e prioridade de integração.                        |
+
+Essas decisões devem ser tomadas antes da implementação da funcionalidade correspondente, mas não precisam estar todas fechadas nesta versão do documento.
+
+---
+
+## 25. Critérios gerais de sucesso do MVP
+
+O MVP será considerado operacionalmente útil quando a Mosaic conseguir:
+
+* Cadastrar seus clientes atuais.
+* Registrar os serviços e contratos de cada cliente.
+* Controlar as parcelas de projetos de criação de sites e sistemas.
+* Controlar as mensalidades de manutenção.
+* Saber quais clientes possuem valores em aberto.
+* Registrar os recebimentos realizados.
+* Controlar as principais contas a pagar.
+* Consultar a previsão financeira e os valores realizados.
+* Localizar o histórico comercial e financeiro de um cliente em um único sistema.
+* Utilizar a plataforma no dia a dia sem depender de planilhas paralelas para esses controles principais.
+
+O sucesso inicial não será medido pela quantidade de funcionalidades, mas pela capacidade de substituir o processo financeiro e cadastral atual de forma confiável.
+
+---
+
+## 26. Resumo da direção do produto
+
+A plataforma da Mosaic Digital será construída sobre um núcleo comercial e financeiro reutilizável, formado principalmente por clientes, catálogo, vendas, itens vendidos, contratos opcionais, assinaturas, planos de cobrança e registros financeiros.
+
+O CRM será uma camada anterior à venda, responsável pela aquisição e negociação. Os módulos de projetos, serviços e suporte serão camadas posteriores, responsáveis pela entrega e relacionamento contínuo.
+
+Essa organização permite que o sistema atenda às particularidades da Mosaic sem depender de uma modelagem exclusiva para agências. Ao mesmo tempo, evita o custo de desenvolver uma plataforma universal antes de existir uma necessidade real.
+
+**A prioridade da versão 0.1 é iniciar o desenvolvimento de um sistema útil para a operação da Mosaic, com uma arquitetura que permita crescimento incremental e validação contínua das regras de negócio.**
