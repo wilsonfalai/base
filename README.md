@@ -16,6 +16,33 @@ pnpm dev
 
 O comando inicia os dois aplicativos com recarga automática. Encerre com Ctrl+C.
 
+## Banco de dados local
+
+O ambiente local usa PostgreSQL 18.6 em Docker, disponível somente em `localhost:5432`. Para iniciar e aguardar o healthcheck:
+
+```bash
+pnpm db:up
+```
+
+As credenciais padrão servem apenas para desenvolvimento local:
+
+```text
+database: mosaicgestao
+user: mosaicgestao
+password: mosaicgestao_dev
+host: localhost
+port: 5432
+```
+
+É possível sobrescrever `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` e `POSTGRES_PORT` pelo ambiente. Os dados persistem no volume Docker nomeado `mosaicgestao_postgres_data`.
+
+```bash
+pnpm db:logs   # acompanha os logs do PostgreSQL
+pnpm db:down   # encerra o contêiner preservando os dados
+```
+
+Remover o volume apaga o banco local e deve ser uma ação manual e intencional.
+
 ```bash
 pnpm build       # Compila os dois aplicativos
 pnpm start       # Inicia ambos em produção após o build
@@ -32,7 +59,7 @@ Frameworks e dependências consultados no registro npm durante a configuração:
 
 Exceções de compatibilidade: TypeScript 6.0.3 é necessário porque o TypeScript 7.0.2 não oferece a API de compilação exigida pelo Nest CLI. ESLint 9.39.5 é a última versão da série suportada pelos plugins incluídos no `eslint-config-next`; eles ainda não suportam ESLint 10. Revisar essas restrições ao atualizar, executando build, lint e testes.
 
-Docker, PostgreSQL, Prisma e Better Auth ficam para as próximas etapas. Nenhuma funcionalidade de negócio foi adicionada.
+Prisma e Better Auth ficam para as próximas etapas. Nenhuma funcionalidade de negócio foi adicionada.
 
 ## Login e shadcn/ui
 

@@ -4,6 +4,9 @@
   "packageManager": "pnpm@12.3.4",
   "engines": { "node": ">=24.14.0" },
   "scripts": {
+    "db:up": "docker compose up -d postgres --wait",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f postgres",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start",
