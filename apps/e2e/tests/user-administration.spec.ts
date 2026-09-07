@@ -48,6 +48,9 @@ test.describe("user administration", () => {
     ).toBeVisible();
 
     await page.getByRole("button", { name: "Novo usuário" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Novo usuário" }),
+    ).toBeVisible();
     await page.getByLabel("Nome").fill(managed.name);
     await page
       .getByRole("textbox", { name: "E-mail", exact: true })
@@ -63,19 +66,37 @@ test.describe("user administration", () => {
     let managedRow = page.getByRole("row", { name: new RegExp(managed.email) });
     await expect(managedRow).toBeVisible();
 
-    await managedRow
-      .getByRole("combobox", { name: `Perfil de ${managed.name}` })
-      .click();
-    await page.getByRole("option", { name: "Administrador" }).click();
-    managedRow = page.getByRole("row", { name: new RegExp(managed.email) });
+    await managedRow.getByRole("button", { name: /^Ações de/ }).click();
+    await page.getByRole("menuitem", { name: "Visualizar" }).click();
     await expect(
-      managedRow.getByRole("combobox", { name: `Perfil de ${managed.name}` }),
-    ).toContainText("Administrador");
+      page.getByRole("heading", { name: "Detalhes do usuário" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("dialog").getByText(managed.email, { exact: true }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Fechar" }).click();
 
-    await managedRow
-      .getByRole("combobox", { name: `Perfil de ${managed.name}` })
-      .click();
+    await managedRow.getByRole("button", { name: /^Ações de/ }).click();
+    await page.getByRole("menuitem", { name: "Editar" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Editar usuário" }),
+    ).toBeVisible();
+    const updatedName = `${managed.name} Atualizado`;
+    await page.getByLabel("Nome").fill(updatedName);
+    await page.getByLabel("Perfil").click();
+    await page.getByRole("option", { name: "Administrador" }).click();
+    await page.getByRole("button", { name: "Salvar alterações" }).click();
+    managedRow = page.getByRole("row", { name: new RegExp(managed.email) });
+    await expect(managedRow.getByText(updatedName, { exact: true })).toBeVisible();
+    await expect(
+      managedRow.getByText("Administrador", { exact: true }),
+    ).toBeVisible();
+
+    await managedRow.getByRole("button", { name: /^Ações de/ }).click();
+    await page.getByRole("menuitem", { name: "Editar" }).click();
+    await page.getByLabel("Perfil").click();
     await page.getByRole("option", { name: "Colaborador" }).click();
+    await page.getByRole("button", { name: "Salvar alterações" }).click();
 
     const managedContext = await browser.newContext({ baseURL: webBaseUrl });
     const managedPage = await managedContext.newPage();
@@ -86,7 +107,8 @@ test.describe("user administration", () => {
     await expect(managedPage).toHaveURL(/\/dashboard$/);
 
     managedRow = page.getByRole("row", { name: new RegExp(managed.email) });
-    await managedRow.getByRole("button", { name: "Inativar" }).click();
+    await managedRow.getByRole("button", { name: /^Ações de/ }).click();
+    await page.getByRole("menuitem", { name: "Inativar" }).click();
     await page.getByRole("button", { name: "Confirmar" }).click();
     managedRow = page.getByRole("row", { name: new RegExp(managed.email) });
     await expect(managedRow.getByText("Inativo", { exact: true })).toBeVisible();
@@ -95,7 +117,8 @@ test.describe("user administration", () => {
     await expect(managedPage).toHaveURL(/\/login$/);
 
     managedRow = page.getByRole("row", { name: new RegExp(managed.email) });
-    await managedRow.getByRole("button", { name: "Ativar" }).click();
+    await managedRow.getByRole("button", { name: /^Ações de/ }).click();
+    await page.getByRole("menuitem", { name: "Ativar" }).click();
     await page.getByRole("button", { name: "Confirmar" }).click();
     managedRow = page.getByRole("row", { name: new RegExp(managed.email) });
     await expect(managedRow.getByText("Ativo", { exact: true })).toBeVisible();

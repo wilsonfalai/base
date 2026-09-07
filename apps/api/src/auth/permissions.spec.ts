@@ -4,7 +4,7 @@ describe('authentication permissions', () => {
   it('allows administrators to manage users', () => {
     expect(
       administrator.authorize({
-        user: ['create', 'list', 'set-role', 'ban'],
+        user: ['create', 'list', 'set-role', 'ban', 'update'],
       }),
     ).toMatchObject({ success: true });
   });

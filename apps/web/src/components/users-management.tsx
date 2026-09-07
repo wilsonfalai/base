@@ -2,7 +2,15 @@
 
 import { useEffect, useState, type FormEvent } from "react"
 import type { UserRole } from "@mosaicgestao/auth/permissions"
-import { IconPlus, IconSearch } from "@tabler/icons-react"
+import {
+  IconDotsVertical,
+  IconEye,
+  IconPencil,
+  IconPlus,
+  IconSearch,
+  IconUserCheck,
+  IconUserOff,
+} from "@tabler/icons-react"
 import { toast } from "sonner"
 
 import {
@@ -14,19 +22,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -36,6 +41,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import {
   Table,
   TableBody,
@@ -56,6 +70,20 @@ type ListUsersResult = NonNullable<
   Awaited<ReturnType<typeof authClient.admin.listUsers>>["data"]
 >
 type ListedUser = ListUsersResult["users"][number]
+type UserSheetState =
+  | { mode: "create" }
+  | { mode: "edit" | "view"; user: ListedUser }
+
+function getUserRole(user: ListedUser): UserRole {
+  return user.role === "admin" ? "admin" : "collaborator"
+}
+
+function formatDate(value: Date | string): string {
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value))
+}
 
 export function UsersManagement({ currentUserId }: { currentUserId: string }) {
   const [users, setUsers] = useState<ListedUser[]>([])
@@ -66,9 +94,11 @@ export function UsersManagement({ currentUserId }: { currentUserId: string }) {
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [mutatingUserId, setMutatingUserId] = useState<string | null>(null)
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [isCreating, setIsCreating] = useState(false)
-  const [newRole, setNewRole] = useState<UserRole>("collaborator")
+  const [sheetState, setSheetState] = useState<UserSheetState | null>(null)
+  const [formRole, setFormRole] = useState<UserRole>("collaborator")
+  const [isSaving, setIsSaving] = useState(false)
+  const [pendingStatusUser, setPendingStatusUser] =
+    useState<ListedUser | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
@@ -106,51 +136,90 @@ export function UsersManagement({ currentUserId }: { currentUserId: string }) {
     }
   }, [appliedSearch, offset, refreshKey])
 
-  async function handleCreate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setIsCreating(true)
+  function refreshUsers() {
+    setIsLoading(true)
+    setRefreshKey((value) => value + 1)
+  }
 
+  function openCreateSheet() {
+    setFormRole("collaborator")
+    setSheetState({ mode: "create" })
+  }
+
+  function openUserSheet(mode: "edit" | "view", user: ListedUser) {
+    setFormRole(getUserRole(user))
+    setSheetState({ mode, user })
+  }
+
+  async function handleSave(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!sheetState || sheetState.mode === "view") return
+
+    setIsSaving(true)
     const form = event.currentTarget
     const formData = new FormData(form)
-    const result = await authClient.admin.createUser({
-      email: String(formData.get("email")),
-      name: String(formData.get("name")),
-      password: String(formData.get("password")),
-      role: newRole,
+    const email = String(formData.get("email")).trim()
+    const name = String(formData.get("name")).trim()
+
+    if (sheetState.mode === "create") {
+      const result = await authClient.admin.createUser({
+        email,
+        name,
+        password: String(formData.get("password")),
+        role: formRole,
+      })
+
+      setIsSaving(false)
+      if (result.error) {
+        toast.error("Não foi possível criar o usuário.")
+        return
+      }
+
+      form.reset()
+      setSheetState(null)
+      setOffset(0)
+      refreshUsers()
+      toast.success("Usuário criado com sucesso.")
+      return
+    }
+
+    const user = sheetState.user
+    const updateResult = await authClient.admin.updateUser({
+      data: { email, name },
+      userId: user.id,
     })
 
-    setIsCreating(false)
-
-    if (result.error) {
-      toast.error("Não foi possível criar o usuário.")
+    if (updateResult.error) {
+      setIsSaving(false)
+      toast.error("Não foi possível editar o usuário.")
       return
     }
 
-    form.reset()
-    setNewRole("collaborator")
-    setIsCreateOpen(false)
-    setOffset(0)
-    setIsLoading(true)
-    setRefreshKey((value) => value + 1)
-    toast.success("Usuário criado com sucesso.")
-  }
+    const currentRole = getUserRole(user)
+    if (user.id !== currentUserId && formRole !== currentRole) {
+      const roleResult = await authClient.admin.setRole({
+        role: formRole,
+        userId: user.id,
+      })
 
-  async function handleRoleChange(userId: string, role: UserRole) {
-    setMutatingUserId(userId)
-    const result = await authClient.admin.setRole({ role, userId })
-    setMutatingUserId(null)
-
-    if (result.error) {
-      toast.error("Não foi possível alterar o perfil.")
-      return
+      if (roleResult.error) {
+        setIsSaving(false)
+        refreshUsers()
+        toast.error("Os dados foram salvos, mas o perfil não foi alterado.")
+        return
+      }
     }
 
-    toast.success("Perfil atualizado.")
-    setIsLoading(true)
-    setRefreshKey((value) => value + 1)
+    setIsSaving(false)
+    setSheetState(null)
+    refreshUsers()
+    toast.success("Usuário atualizado com sucesso.")
   }
 
-  async function handleStatusChange(user: ListedUser) {
+  async function handleStatusChange() {
+    const user = pendingStatusUser
+    if (!user) return
+
     setMutatingUserId(user.id)
     const result = user.banned
       ? await authClient.admin.unbanUser({ userId: user.id })
@@ -165,9 +234,9 @@ export function UsersManagement({ currentUserId }: { currentUserId: string }) {
       return
     }
 
+    setPendingStatusUser(null)
     toast.success(user.banned ? "Usuário ativado." : "Usuário inativado.")
-    setIsLoading(true)
-    setRefreshKey((value) => value + 1)
+    refreshUsers()
   }
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
@@ -179,6 +248,11 @@ export function UsersManagement({ currentUserId }: { currentUserId: string }) {
     setRefreshKey((value) => value + 1)
   }
 
+  const selectedUser =
+    sheetState && sheetState.mode !== "create" ? sheetState.user : null
+  const isViewMode = sheetState?.mode === "view"
+  const isCurrentUserSelected = selectedUser?.id === currentUserId
+
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -189,78 +263,15 @@ export function UsersManagement({ currentUserId }: { currentUserId: string }) {
           </p>
         </div>
 
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <IconPlus />
-              Novo usuário
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <form onSubmit={handleCreate}>
-              <DialogHeader>
-                <DialogTitle>Novo usuário</DialogTitle>
-                <DialogDescription>
-                  Crie o acesso interno e compartilhe a senha temporária por um
-                  canal seguro.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="new-user-name">Nome</Label>
-                  <Input id="new-user-name" name="name" required />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="new-user-email">E-mail</Label>
-                  <Input id="new-user-email" name="email" type="email" required />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="new-user-password">Senha temporária</Label>
-                  <Input
-                    autoComplete="new-password"
-                    id="new-user-password"
-                    minLength={8}
-                    name="password"
-                    type="password"
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="new-user-role">Perfil</Label>
-                  <Select
-                    value={newRole}
-                    onValueChange={(value) => setNewRole(value as UserRole)}
-                  >
-                    <SelectTrigger id="new-user-role" className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="collaborator">Colaborador</SelectItem>
-                      <SelectItem value="admin">Administrador</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsCreateOpen(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button disabled={isCreating} type="submit">
-                  {isCreating ? "Criando..." : "Criar usuário"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={openCreateSheet}>
+          <IconPlus />
+          Novo usuário
+        </Button>
       </div>
 
       <form className="flex max-w-md gap-2" onSubmit={handleSearch}>
         <div className="relative flex-1">
-          <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <IconSearch className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             aria-label="Buscar por e-mail"
             className="pl-9"
@@ -282,7 +293,9 @@ export function UsersManagement({ currentUserId }: { currentUserId: string }) {
               <TableHead>E-mail</TableHead>
               <TableHead>Perfil</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Ação</TableHead>
+              <TableHead className="w-14 text-right">
+                <span className="sr-only">Ações</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -303,9 +316,8 @@ export function UsersManagement({ currentUserId }: { currentUserId: string }) {
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      setIsLoading(true)
                       setLoadError(false)
-                      setRefreshKey((value) => value + 1)
+                      refreshUsers()
                     }}
                   >
                     Tentar novamente
@@ -321,7 +333,7 @@ export function UsersManagement({ currentUserId }: { currentUserId: string }) {
             ) : (
               users.map((user) => {
                 const isCurrentUser = user.id === currentUserId
-                const role = user.role === "admin" ? "admin" : "collaborator"
+                const role = getUserRole(user)
 
                 return (
                   <TableRow key={user.id}>
@@ -334,62 +346,48 @@ export function UsersManagement({ currentUserId }: { currentUserId: string }) {
                       ) : null}
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Select
-                        disabled={isCurrentUser || mutatingUserId === user.id}
-                        value={role}
-                        onValueChange={(value) =>
-                          void handleRoleChange(user.id, value as UserRole)
-                        }
-                      >
-                        <SelectTrigger
-                          aria-label={`Perfil de ${user.name}`}
-                          className="w-40"
-                          size="sm"
-                        >
-                          <SelectValue>{ROLE_LABELS[role]}</SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="collaborator">Colaborador</SelectItem>
-                          <SelectItem value="admin">Administrador</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
+                    <TableCell>{ROLE_LABELS[role]}</TableCell>
                     <TableCell>
                       <Badge variant={user.banned ? "outline" : "secondary"}>
                         {user.banned ? "Inativo" : "Ativo"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
                           <Button
-                            disabled={isCurrentUser || mutatingUserId === user.id}
-                            size="sm"
+                            aria-label={`Ações de ${user.name}`}
+                            disabled={mutatingUserId === user.id}
+                            size="icon-sm"
                             variant="ghost"
                           >
-                            {user.banned ? "Ativar" : "Inativar"}
+                            <IconDotsVertical />
                           </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              {user.banned ? "Ativar usuário?" : "Inativar usuário?"}
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              {user.banned
-                                ? `${user.name} poderá entrar novamente no sistema.`
-                                : `${user.name} perderá o acesso e todas as sessões serão encerradas.`}
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => void handleStatusChange(user)}>
-                              Confirmar
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-44">
+                          <DropdownMenuItem
+                            onSelect={() => openUserSheet("view", user)}
+                          >
+                            <IconEye />
+                            Visualizar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => openUserSheet("edit", user)}
+                          >
+                            <IconPencil />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            disabled={isCurrentUser}
+                            variant={user.banned ? "default" : "destructive"}
+                            onSelect={() => setPendingStatusUser(user)}
+                          >
+                            {user.banned ? <IconUserCheck /> : <IconUserOff />}
+                            {user.banned ? "Ativar" : "Inativar"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 )
@@ -426,6 +424,188 @@ export function UsersManagement({ currentUserId }: { currentUserId: string }) {
           </Button>
         </div>
       </div>
+
+      <Sheet
+        open={sheetState !== null}
+        onOpenChange={(open) => {
+          if (!open && !isSaving) setSheetState(null)
+        }}
+      >
+        <SheetContent className="w-full sm:max-w-lg">
+          <form
+            key={sheetState?.mode === "create" ? "create" : selectedUser?.id}
+            className="flex min-h-0 flex-1 flex-col"
+            onSubmit={handleSave}
+          >
+            <SheetHeader className="border-b px-6 py-5">
+              <SheetTitle>
+                {sheetState?.mode === "create"
+                  ? "Novo usuário"
+                  : isViewMode
+                    ? "Detalhes do usuário"
+                    : "Editar usuário"}
+              </SheetTitle>
+              <SheetDescription>
+                {sheetState?.mode === "create"
+                  ? "Crie o acesso interno e compartilhe a senha temporária por um canal seguro."
+                  : isViewMode
+                    ? "Consulte os dados e o estado de acesso deste usuário."
+                    : "Atualize os dados cadastrais e o perfil de acesso."}
+              </SheetDescription>
+            </SheetHeader>
+
+            {isViewMode && selectedUser ? (
+              <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Nome</p>
+                  <p className="font-medium">{selectedUser.name}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">E-mail</p>
+                  <p className="font-medium break-all">{selectedUser.email}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-6 border-y py-5">
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Perfil</p>
+                    <p className="font-medium">
+                      {ROLE_LABELS[getUserRole(selectedUser)]}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Status</p>
+                    <Badge
+                      variant={selectedUser.banned ? "outline" : "secondary"}
+                    >
+                      {selectedUser.banned ? "Inativo" : "Ativo"}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Criado em</p>
+                  <p className="font-medium">
+                    {formatDate(selectedUser.createdAt)}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Atualizado em</p>
+                  <p className="font-medium">
+                    {formatDate(selectedUser.updatedAt)}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6">
+                <div className="grid gap-2">
+                  <Label htmlFor="user-name">Nome</Label>
+                  <Input
+                    defaultValue={selectedUser?.name}
+                    id="user-name"
+                    name="name"
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="user-email">E-mail</Label>
+                  <Input
+                    defaultValue={selectedUser?.email}
+                    id="user-email"
+                    name="email"
+                    type="email"
+                    required
+                  />
+                </div>
+                {sheetState?.mode === "create" ? (
+                  <div className="grid gap-2">
+                    <Label htmlFor="user-password">Senha temporária</Label>
+                    <Input
+                      autoComplete="new-password"
+                      id="user-password"
+                      minLength={8}
+                      name="password"
+                      type="password"
+                      required
+                    />
+                  </div>
+                ) : null}
+                <div className="grid gap-2">
+                  <Label htmlFor="user-role">Perfil</Label>
+                  <Select
+                    disabled={isCurrentUserSelected}
+                    value={formRole}
+                    onValueChange={(value) => setFormRole(value as UserRole)}
+                  >
+                    <SelectTrigger id="user-role" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="collaborator">Colaborador</SelectItem>
+                      <SelectItem value="admin">Administrador</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {isCurrentUserSelected ? (
+                    <p className="text-xs text-muted-foreground">
+                      Seu próprio perfil não pode ser alterado aqui.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            )}
+
+            <SheetFooter className="border-t px-6 py-4 sm:flex-row sm:justify-end">
+              <SheetClose asChild>
+                <Button disabled={isSaving} type="button" variant="outline">
+                  {isViewMode ? "Fechar" : "Cancelar"}
+                </Button>
+              </SheetClose>
+              {!isViewMode ? (
+                <Button disabled={isSaving} type="submit">
+                  {isSaving
+                    ? "Salvando..."
+                    : sheetState?.mode === "create"
+                      ? "Criar usuário"
+                      : "Salvar alterações"}
+                </Button>
+              ) : null}
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog
+        open={pendingStatusUser !== null}
+        onOpenChange={(open) => {
+          if (!open && !mutatingUserId) setPendingStatusUser(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingStatusUser?.banned
+                ? "Ativar usuário?"
+                : "Inativar usuário?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingStatusUser?.banned
+                ? `${pendingStatusUser.name} poderá entrar novamente no sistema.`
+                : `${pendingStatusUser?.name} perderá o acesso e todas as sessões serão encerradas.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={mutatingUserId !== null}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={mutatingUserId !== null}
+              onClick={(event) => {
+                event.preventDefault()
+                void handleStatusChange()
+              }}
+            >
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

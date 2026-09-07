@@ -131,7 +131,7 @@ Uma história está concluída quando:
 **Critérios de aceite:**
 
 - Existem os perfis `administrador` e `colaborador`.
-- Administrador pode listar, convidar/criar, ativar e inativar usuários.
+- Administrador pode listar, criar, visualizar, editar, ativar e inativar usuários.
 - Colaborador não acessa ações exclusivas de administração.
 - Usuário inativo perde acesso sem que seu histórico seja apagado.
 
@@ -139,7 +139,7 @@ Uma história está concluída quando:
 
 - T-005.1 Modelar status e perfil do usuário.
 - T-005.2 Implementar políticas/guards e endpoints administrativos.
-- T-005.3 Criar telas de usuários e estados da interface.
+- T-005.3 Criar a listagem de usuários e os painéis laterais de criação, visualização e edição.
 - T-005.4 Registrar autoria nas operações principais desde esta base.
 - T-005.5 Testar matriz mínima de autorização.
 

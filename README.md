@@ -211,6 +211,13 @@ apps/web/src/app/
 
 O login usa e-mail e senha do Better Auth. O cadastro público está desabilitado: usuários internos são criados pelo administrador com `pnpm auth:create-admin`. As rotas do grupo `(system)` exigem sessão, e o mesmo cookie é validado pela API NestJS. O dashboard ainda mantém os dados visuais de referência do shadcn/ui.
 
+### Convenções de interface
+
+- Formulários de criação e edição de entidades abrem em `Sheet`, preservando o contexto da listagem.
+- A última coluna das tabelas usa `DropdownMenu` acionado por um botão de três pontos para ações como visualizar, editar e ativar/inativar.
+- Ações destrutivas ou que alteram acesso exigem confirmação em `AlertDialog`; formulários comuns não usam modal.
+- A tela de visualização é somente leitura e reutiliza o painel lateral da entidade.
+
 Execute comandos do shadcn dentro do frontend para que componentes e dependências permaneçam no workspace correto:
 
 ```bash
