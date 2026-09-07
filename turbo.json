@@ -15,6 +15,10 @@
     },
     "lint": {},
     "test": {},
+    "test:integration": {
+      "cache": false,
+      "dependsOn": ["^build"]
+    },
     "test:e2e": {}
   }
 }
