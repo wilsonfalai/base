@@ -11,10 +11,20 @@ Use Node.js 24.14 ou superior e pnpm 12.3.4 (`npm install -g pnpm@12.3.4`).
 
 ```bash
 pnpm install --frozen-lockfile
+cp .env.example .env
+pnpm db:up
+pnpm db:deploy
 pnpm dev
 ```
 
-O comando inicia os dois aplicativos com recarga automática. Encerre com Ctrl+C.
+O `pnpm dev` prepara o pacote compartilhado e inicia os dois aplicativos com recarga automática. Acesse:
+
+- Frontend: http://localhost:3000
+- API: http://localhost:3001
+- Liveness: http://localhost:3001/health
+- Readiness com banco: http://localhost:3001/health/ready
+
+Encerre Next.js e NestJS com Ctrl+C. O PostgreSQL roda em segundo plano até `pnpm db:down`.
 
 ## Banco de dados local
 
@@ -43,11 +53,26 @@ pnpm db:down   # encerra o contêiner preservando os dados
 
 Remover o volume apaga o banco local e deve ser uma ação manual e intencional.
 
+## Prisma e migrations
+
+O schema, o client e o histórico de migrations ficam em `packages/database`. Não altere o banco manualmente nem edite migrations que já tenham sido aplicadas.
+
+```bash
+pnpm db:generate            # regenera o client após alterar o schema
+pnpm db:migrate -- --name nome_da_mudanca
+pnpm db:deploy              # aplica migrations existentes sem criar novas
+pnpm db:studio              # abre o Prisma Studio
+pnpm test:integration       # valida conexão e migrations no banco local
+```
+
+Use `db:migrate` durante o desenvolvimento ao alterar o schema. Use `db:deploy` em checkout limpo, CI e produção.
+
 ```bash
 pnpm build       # Compila os dois aplicativos
 pnpm start       # Inicia ambos em produção após o build
 pnpm lint        # Verifica os dois aplicativos
 pnpm test        # Teste unitário oficial do NestJS
+pnpm test:integration # Teste real do PostgreSQL
 pnpm test:e2e    # Teste HTTP oficial do NestJS
 ```
 
@@ -59,7 +84,22 @@ Frameworks e dependências consultados no registro npm durante a configuração:
 
 Exceções de compatibilidade: TypeScript 6.0.3 é necessário porque o TypeScript 7.0.2 não oferece a API de compilação exigida pelo Nest CLI. ESLint 9.39.5 é a última versão da série suportada pelos plugins incluídos no `eslint-config-next`; eles ainda não suportam ESLint 10. Revisar essas restrições ao atualizar, executando build, lint e testes.
 
-Prisma e Better Auth ficam para as próximas etapas. Nenhuma funcionalidade de negócio foi adicionada.
+O Prisma 7.10.0 está configurado com o driver PostgreSQL. Better Auth fica para uma etapa posterior. Nenhuma funcionalidade de negócio foi adicionada.
+
+## Decisões de persistência
+
+- **IDs:** entidades de domínio usarão UUID v4 gerado pela aplicação e coluna PostgreSQL `uuid`. IDs administrados por bibliotecas externas, como autenticação, seguem o contrato da biblioteca e permanecem strings quando necessário.
+- **Dinheiro:** valores usam `Decimal(19,4)` no banco e código de moeda ISO 4217 separado, inicialmente `BRL`. Nunca usar ponto flutuante (`number`) para cálculos monetários; transportar valores como string decimal.
+- **Data e hora:** instantes usam UTC em `timestamptz(3)` e trafegam em ISO 8601. Datas civis sem horário, como vencimento, usam `date`. Conversão para `America/Sao_Paulo` acontece apenas na apresentação.
+
+## Troubleshooting
+
+- **Porta 5432 ocupada:** altere `POSTGRES_PORT` no `.env` e ajuste a porta da `DATABASE_URL` para o mesmo valor.
+- **`DATABASE_URL` ausente ou inválida:** copie novamente `.env.example` para `.env` e reinicie a API.
+- **Client Prisma desatualizado:** execute `pnpm db:generate` e depois `pnpm build`.
+- **Banco ainda iniciando:** aguarde `pnpm db:up`; o comando só termina após o healthcheck ficar saudável.
+- **Migration inconsistente:** confira `pnpm --filter @mosaicgestao/database exec prisma migrate status`. Não apague o volume nem use reset se houver dados importantes.
+- **Recriar o banco local:** somente quando a perda for aceitável, execute `pnpm db:down`, remova manualmente o volume `mosaicgestao_postgres_data`, suba o banco e rode `pnpm db:deploy`.
 
 ## Login e shadcn/ui
 
