@@ -25,5 +25,5 @@
     "test:e2e:web": "pnpm --filter @base-app/e2e test:e2e",
     "test:e2e:install": "pnpm --filter @base-app/e2e exec playwright install chromium"
   },
-  "devDependencies": { "turbo": "2.10.12" }
+  "devDependencies": { "turbo": "2.10.13" }
 }

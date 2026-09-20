@@ -30,9 +30,9 @@
     "pg": "8.23.0"
   },
   "devDependencies": {
-    "@types/node": "26.4.1",
+    "@types/node": "26.6.1",
     "@types/pg": "8.23.1",
     "prisma": "catalog:prisma",
-    "typescript": "6.0.3"
+    "typescript": "7.0.2"
   }
 }
