@@ -1,4 +1,4 @@
-import { createPrismaClient } from "@mosaicgestao/database";
+import { createPrismaClient } from "@base-app/database";
 import { e2eUsers } from "../global-setup.js";
 import { expect, test } from "../fixtures/test.js";
 

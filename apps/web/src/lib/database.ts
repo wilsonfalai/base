@@ -1,10 +1,10 @@
 import {
   createPrismaClient,
   type DatabaseClient,
-} from "@mosaicgestao/database"
+} from "@base-app/database"
 
 const globalDatabase = globalThis as typeof globalThis & {
-  mosaicDatabase?: DatabaseClient
+  baseAppDatabase?: DatabaseClient
 }
 
 function requiredEnvironment(name: string): string {
@@ -18,9 +18,9 @@ function requiredEnvironment(name: string): string {
 }
 
 export const database =
-  globalDatabase.mosaicDatabase ??
+  globalDatabase.baseAppDatabase ??
   createPrismaClient(requiredEnvironment("DATABASE_URL"))
 
 if (process.env.NODE_ENV !== "production") {
-  globalDatabase.mosaicDatabase = database
+  globalDatabase.baseAppDatabase = database
 }

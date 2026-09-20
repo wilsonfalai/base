@@ -1,4 +1,4 @@
-import { administrator, collaborator } from '@mosaicgestao/auth/permissions';
+import { administrator, collaborator } from '@base-app/auth/permissions';
 
 describe('authentication permissions', () => {
   it('allows administrators to manage users', () => {

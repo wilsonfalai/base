@@ -1,5 +1,5 @@
 {
-  "name": "@mosaicgestao/e2e",
+  "name": "@base-app/e2e",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@mosaicgestao/auth": "workspace:*",
-    "@mosaicgestao/database": "workspace:*",
+    "@base-app/auth": "workspace:*",
+    "@base-app/database": "workspace:*",
     "@playwright/test": "1.63.0",
     "@types/node": "^26.4.1",
     "dotenv": "17.4.2",

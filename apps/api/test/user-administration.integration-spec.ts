@@ -1,8 +1,8 @@
-import { createAuth } from '@mosaicgestao/auth';
+import { createAuth } from '@base-app/auth';
 import {
   createPrismaClient,
   type DatabaseClient,
-} from '@mosaicgestao/database';
+} from '@base-app/database';
 
 describe('user administration persistence', () => {
   let auth: ReturnType<typeof createAuth>;
@@ -11,12 +11,12 @@ describe('user administration persistence', () => {
   let sessionCookie: string;
 
   const administrator = {
-    email: 'integration.admin@mosaic.local',
+    email: 'integration.admin@base-app.local',
     name: 'Integration Administrator',
     password: 'Integration-admin-password-123!',
   };
   const managedUser = {
-    email: 'integration.managed@mosaic.local',
+    email: 'integration.managed@base-app.local',
     name: 'Integration Managed User',
     password: 'Integration-managed-password-123!',
     role: 'collaborator',

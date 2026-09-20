@@ -11,8 +11,8 @@ pnpm db:up
 pnpm db:deploy
 pnpm test:e2e:install
 pnpm test:e2e:web
-pnpm --filter @mosaicgestao/e2e test:e2e:ui
-pnpm --filter @mosaicgestao/e2e test:e2e:debug
+pnpm --filter @base-app/e2e test:e2e:ui
+pnpm --filter @base-app/e2e test:e2e:debug
 ```
 
 Variáveis suportadas:

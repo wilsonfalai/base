@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createAuth, type Auth } from '@mosaicgestao/auth';
-import type { InternalUser } from '@mosaicgestao/auth/permissions';
+import { createAuth, type Auth } from '@base-app/auth';
+import type { InternalUser } from '@base-app/auth/permissions';
 import { fromNodeHeaders } from 'better-auth/node';
 import type { IncomingHttpHeaders } from 'node:http';
 import type { Environment } from '../config/environment.js';

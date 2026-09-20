@@ -1,7 +1,7 @@
 import {
   createPrismaClient,
   type DatabaseClient,
-} from '@mosaicgestao/database';
+} from '@base-app/database';
 
 describe('PostgreSQL integration', () => {
   let client: DatabaseClient;
@@ -26,7 +26,7 @@ describe('PostgreSQL integration', () => {
       Array<{ database: string; version: string }>
     >`SELECT current_database() AS database, current_setting('server_version') AS version`;
 
-    expect(result.database).toBe('mosaicgestao');
+    expect(result.database).toBe('base_app');
     expect(result.version).toMatch(/^18\./);
   });
 

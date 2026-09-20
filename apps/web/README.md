@@ -1,6 +1,6 @@
 # Frontend
 
-Aplicação web do Mosaic Gestão, construída com Next.js App Router, React, Tailwind CSS e shadcn/ui.
+Aplicação web da Base App, construída com Next.js App Router, React, Tailwind CSS e shadcn/ui.
 
 ## Execução
 

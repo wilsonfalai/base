@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, type FormEvent } from "react"
-import type { UserRole } from "@mosaicgestao/auth/permissions"
+import type { UserRole } from "@base-app/auth/permissions"
 import {
   IconDotsVertical,
   IconEye,

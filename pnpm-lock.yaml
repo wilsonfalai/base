@@ -134,10 +134,10 @@ importers:
 
   apps/api:
     dependencies:
-      '@mosaicgestao/auth':
+      '@base-app/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@mosaicgestao/database':
+      '@base-app/database':
         specifier: workspace:*
         version: link:../../packages/database
       '@nestjs/common':
@@ -210,10 +210,10 @@ importers:
 
   apps/e2e:
     devDependencies:
-      '@mosaicgestao/auth':
+      '@base-app/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@mosaicgestao/database':
+      '@base-app/database':
         specifier: workspace:*
         version: link:../../packages/database
       '@playwright/test':
@@ -243,10 +243,10 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.2.8)
-      '@mosaicgestao/auth':
+      '@base-app/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@mosaicgestao/database':
+      '@base-app/database':
         specifier: workspace:*
         version: link:../../packages/database
       '@tabler/icons-react':
@@ -334,7 +334,7 @@ importers:
       '@better-auth/prisma-adapter':
         specifier: catalog:auth
         version: 1.7.3(@better-auth/core@1.7.3(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.1)(better-call@1.4.0(zod@4.5.4))(jose@6.2.12)(kysely@0.29.5)(nanostores@1.5.3))(@better-auth/utils@0.4.2)(@prisma/client@7.10.0(prisma@7.10.0(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@6.0.3))(typescript@6.0.3))(prisma@7.10.0(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@6.0.3))
-      '@mosaicgestao/database':
+      '@base-app/database':
         specifier: workspace:*
         version: link:../database
       better-auth:

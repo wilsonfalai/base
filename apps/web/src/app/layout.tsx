@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mosaic Gestão",
-  description: "Gestão comercial e financeira da Mosaic",
+  title: "Base App",
+  description: "Base para aplicações administrativas",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

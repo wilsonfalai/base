@@ -1,4 +1,4 @@
-import { createAuth } from "@mosaicgestao/auth"
+import { createAuth } from "@base-app/auth"
 
 import { database } from "@/lib/database"
 

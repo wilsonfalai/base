@@ -165,7 +165,7 @@ export function AppSidebar({
             >
               <a href="#">
                 <IconInnerShadowTop className="size-5!" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <span className="text-base font-semibold">Base App</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

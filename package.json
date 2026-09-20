@@ -1,18 +1,18 @@
 {
-  "name": "mosaicgestao",
+  "name": "base-app",
   "private": true,
   "packageManager": "pnpm@12.3.4",
   "engines": { "node": ">=24.14.0" },
   "scripts": {
-    "auth:create-admin": "pnpm --filter @mosaicgestao/auth auth:create-admin",
-    "auth:schema": "pnpm --filter @mosaicgestao/auth auth:schema",
+    "auth:create-admin": "pnpm --filter @base-app/auth auth:create-admin",
+    "auth:schema": "pnpm --filter @base-app/auth auth:schema",
     "db:up": "docker compose up -d postgres --wait",
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f postgres",
     "db:generate": "turbo run db:generate",
-    "db:migrate": "pnpm --filter @mosaicgestao/database db:migrate",
-    "db:deploy": "pnpm --filter @mosaicgestao/database db:deploy",
-    "db:studio": "pnpm --filter @mosaicgestao/database db:studio",
+    "db:migrate": "pnpm --filter @base-app/database db:migrate",
+    "db:deploy": "pnpm --filter @base-app/database db:deploy",
+    "db:studio": "pnpm --filter @base-app/database db:studio",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start",
@@ -22,8 +22,8 @@
     "test:coverage": "turbo run test:coverage",
     "test:integration": "turbo run test:integration",
     "test:e2e": "turbo run test:e2e",
-    "test:e2e:web": "pnpm --filter @mosaicgestao/e2e test:e2e",
-    "test:e2e:install": "pnpm --filter @mosaicgestao/e2e exec playwright install chromium"
+    "test:e2e:web": "pnpm --filter @base-app/e2e test:e2e",
+    "test:e2e:install": "pnpm --filter @base-app/e2e exec playwright install chromium"
   },
   "devDependencies": { "turbo": "2.10.12" }
 }

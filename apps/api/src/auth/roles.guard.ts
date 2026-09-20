@@ -1,4 +1,4 @@
-import type { UserRole } from '@mosaicgestao/auth/permissions';
+import type { UserRole } from '@base-app/auth/permissions';
 import {
   CanActivate,
   ExecutionContext,

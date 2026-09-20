@@ -6,7 +6,7 @@ const apiBaseUrl = process.env.E2E_API_BASE_URL ?? "http://localhost:3001";
 test.describe("authentication", () => {
   test("shows a generic error for invalid credentials", async ({ page }) => {
     await page.goto("/login");
-    await page.getByLabel("Email").fill("unknown@mosaic.local");
+    await page.getByLabel("Email").fill("unknown@base-app.local");
     await page.getByLabel("Senha").fill("invalid-password");
     await page.getByRole("button", { name: "Login", exact: true }).click();
 

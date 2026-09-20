@@ -1,5 +1,5 @@
 import { prismaAdapter } from '@better-auth/prisma-adapter';
-import type { DatabaseClient } from '@mosaicgestao/database';
+import type { DatabaseClient } from '@base-app/database';
 import { betterAuth, type BetterAuthOptions } from 'better-auth';
 import { admin } from 'better-auth/plugins';
 import { accessControl, authRoles } from './permissions.js';
@@ -28,7 +28,7 @@ function createAuthOptions({
   }
 
   return {
-    appName: 'Mosaic Gestão',
+    appName: 'Base App',
     baseURL,
     database: prismaAdapter(database, {
       provider: 'postgresql',

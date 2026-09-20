@@ -1,4 +1,4 @@
-# `@mosaicgestao/auth`
+# `@base-app/auth`
 
 Configuração compartilhada do Better Auth para o frontend Next.js e a API NestJS.
 

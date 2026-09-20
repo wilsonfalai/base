@@ -1,5 +1,5 @@
-import { createAuth } from "@mosaicgestao/auth";
-import { createPrismaClient } from "@mosaicgestao/database";
+import { createAuth } from "@base-app/auth";
+import { createPrismaClient } from "@base-app/database";
 import { config } from "dotenv";
 import { fileURLToPath } from "node:url";
 
@@ -9,19 +9,19 @@ config({ path: `${repositoryRoot}/.env`, quiet: true });
 
 export const e2eUsers = {
   admin: {
-    email: "e2e.admin@mosaic.local",
+    email: "e2e.admin@base-app.local",
     name: "Administrador E2E",
     password: "E2e-admin-only-password-123!",
     role: "admin" as const,
   },
   collaborator: {
-    email: process.env.E2E_USER_EMAIL ?? "e2e.collaborator@mosaic.local",
+    email: process.env.E2E_USER_EMAIL ?? "e2e.collaborator@base-app.local",
     name: process.env.E2E_USER_NAME ?? "Colaborador E2E",
     password: process.env.E2E_USER_PASSWORD ?? "E2e-only-password-123!",
     role: "collaborator" as const,
   },
   managed: {
-    email: "e2e.managed@mosaic.local",
+    email: "e2e.managed@base-app.local",
     name: "Usuário Gerenciado E2E",
     password: "E2e-managed-only-password-123!",
     role: "collaborator" as const,

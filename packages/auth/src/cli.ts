@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 
-import { createPrismaClient } from '@mosaicgestao/database';
+import { createPrismaClient } from '@base-app/database';
 
 import { createAuth, type Auth } from './auth.js';
 

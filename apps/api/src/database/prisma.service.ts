@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   createPrismaClient,
   type DatabaseClient,
-} from '@mosaicgestao/database';
+} from '@base-app/database';
 import type { Environment } from '../config/environment.js';
 
 @Injectable()

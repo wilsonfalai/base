@@ -1,4 +1,4 @@
-import type { UserRole } from '@mosaicgestao/auth/permissions';
+import type { UserRole } from '@base-app/auth/permissions';
 import { SetMetadata } from '@nestjs/common';
 
 export const REQUIRED_ROLES = 'auth:required-roles';

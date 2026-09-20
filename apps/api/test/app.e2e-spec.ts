@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { createAuth } from '@mosaicgestao/auth';
+import { createAuth } from '@base-app/auth';
 import {
   createPrismaClient,
   type DatabaseClient,
-} from '@mosaicgestao/database';
+} from '@base-app/database';
 import request from 'supertest';
 import { AppModule } from './../src/app.module.js';
 
@@ -14,7 +14,7 @@ describe('AppController (e2e)', () => {
   let sessionCookie: string;
 
   const testUser = {
-    email: 'api.e2e@mosaic.local',
+    email: 'api.e2e@base-app.local',
     name: 'API E2E User',
     password: 'Api-e2e-only-password-123!',
   };

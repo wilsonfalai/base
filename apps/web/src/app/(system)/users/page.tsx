@@ -1,4 +1,4 @@
-import type { InternalUser } from "@mosaicgestao/auth/permissions"
+import type { InternalUser } from "@base-app/auth/permissions"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 

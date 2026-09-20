@@ -1,6 +1,6 @@
 # API
 
-Backend do Mosaic Gestão, construído com NestJS e integrado ao PostgreSQL pelo pacote compartilhado `@mosaicgestao/database`.
+Backend da Base App, construído com NestJS e integrado ao PostgreSQL pelo pacote compartilhado `@base-app/database`.
 
 ## Execução
 
