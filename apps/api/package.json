@@ -27,15 +27,15 @@
   "dependencies": {
     "@base-app/auth": "workspace:*",
     "@base-app/database": "workspace:*",
-    "@nestjs/common": "^12.0.1",
+    "@nestjs/common": "^12.0.3",
     "@nestjs/config": "12.0.0",
-    "@nestjs/core": "^12.0.1",
-    "@nestjs/platform-express": "^12.0.1",
+    "@nestjs/core": "^12.0.3",
+    "@nestjs/platform-express": "^12.0.3",
     "better-auth": "catalog:auth",
     "dotenv": "17.4.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "zod": "4.5.4"
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^12.0.0",
