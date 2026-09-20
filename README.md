@@ -2,6 +2,55 @@
 
 Base reutilizável para aplicações administrativas com monorepo pnpm/Turborepo, frontend Next.js, API NestJS, PostgreSQL, Prisma e Better Auth.
 
+## Ponto de partida desta base
+
+Este repositório é um ponto inicial técnico, não um produto pronto. Ele foi preparado para receber diferentes sistemas administrativos sem carregar regras de negócio de um projeto anterior.
+
+Já estão implementados e validados:
+
+- monorepo com pnpm e Turborepo;
+- frontend Next.js com layout administrativo, sidebar e dashboard de referência;
+- API NestJS com configuração tipada e endpoints de saúde;
+- PostgreSQL, Prisma, migrations e Prisma Studio;
+- autenticação por e-mail e senha com Better Auth;
+- login, logout, sessão compartilhada entre frontend e API e proteção das rotas internas;
+- administração de usuários com papéis `admin` e `collaborator`;
+- auditoria básica das operações de usuários;
+- testes unitários, de integração, E2E da API e Playwright.
+
+O banco contém somente os modelos genéricos de autenticação e auditoria. Não existem entidades, telas ou regras de um domínio de negócio. O nome `Base App`, o namespace `@base-app/*` e o banco `base_app` são identificadores provisórios.
+
+## Como iniciar um produto novo
+
+Antes de implementar funcionalidades, adicione na raiz um arquivo com a descrição do produto, preferencialmente `projeto.prd`, ou uma documentação equivalente em `docs/`. Esse documento deve registrar de forma objetiva:
+
+- problema que o produto resolve e público-alvo;
+- escopo inicial e funcionalidades prioritárias;
+- principais entidades e regras de negócio;
+- papéis de usuário e regras de autorização;
+- integrações externas;
+- critérios de aceite e requisitos não funcionais relevantes.
+
+Com esse contexto disponível, a sequência recomendada é:
+
+1. Ler o PRD e esclarecer decisões que alterem o modelo de dados ou o escopo.
+2. Definir o nome do produto, o slug técnico e o nome do banco.
+3. Substituir os identificadores provisórios `Base App`, `base-app`, `@base-app` e `base_app`.
+4. Atualizar `.env.example`, `compose.yaml`, metadados, documentação e testes com a nova identidade.
+5. Criar um `.env` local, gerar um novo `BETTER_AUTH_SECRET` e iniciar um banco exclusivo do produto.
+6. Aplicar as migrations existentes e criar o primeiro administrador.
+7. Implementar a primeira funcionalidade vertical do PRD, incluindo banco, API, interface e testes proporcionais.
+
+Use esta busca para encontrar todos os identificadores provisórios durante a renomeação:
+
+```bash
+rg --hidden -n 'Base App|base-app|@base-app|base_app' \
+  --glob '!.git/**' \
+  --glob '!node_modules/**'
+```
+
+Crie o novo repositório remoto somente depois que a identidade do produto estiver definida. Até lá, esta base pode permanecer local e sem remoto configurado.
+
 ## Requisitos
 
 - Node.js 24.14 ou superior
