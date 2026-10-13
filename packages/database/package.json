@@ -26,8 +26,8 @@
   "dependencies": {
     "@prisma/adapter-pg": "catalog:prisma",
     "@prisma/client": "catalog:prisma",
-    "dotenv": "17.4.2",
-    "pg": "8.23.0"
+    "dotenv": "18.0.7",
+    "pg": "8.23.1"
   },
   "devDependencies": {
     "@types/node": "26.4.1",
