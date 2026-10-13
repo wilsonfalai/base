@@ -12,9 +12,9 @@
   "devDependencies": {
     "@base-app/auth": "workspace:*",
     "@base-app/database": "workspace:*",
-    "@playwright/test": "1.63.0",
-    "@types/node": "^26.4.1",
+    "@playwright/test": "1.64.0",
+    "@types/node": "^26.6.5",
     "dotenv": "17.4.2",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }
